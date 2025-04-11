@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MovieApp(
     navController: NavHostController = rememberNavController(),
-    viewModel: MovieViewModel = MovieViewModel(),
+    movieViewModel: MovieViewModel = MovieViewModel(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -82,7 +82,7 @@ fun MovieApp(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(MovieScreen.Main.name) {
-                MainScreen(navController)
+                MainScreen(movieViewModel,navController)
             }
             composable(
                 "${MovieScreen.Details.name}/{movieId}",

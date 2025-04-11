@@ -89,4 +89,21 @@ class Movies {
     fun getMovieById(id: Long): Movie? {
         return movies.find { it.id == id }
     }
+    fun moviesByGenre(genre: String): List<Movie> {
+        return movies.filter { it.genres.contains(genre) }
+    }
+
+    fun createSectionedMoviesByGenre(movies: List<Movie>): Map<String, List<Movie>> {
+        val sectionMap = mutableMapOf<String, MutableList<Movie>>()
+
+        for (movie in movies) {
+            for (genre in movie.genres) {
+                // genre is already a String thanks to your mapNotNull above
+                val list = sectionMap.getOrPut(genre) { mutableListOf() }
+                list.add(movie)
+            }
+        }
+
+        return sectionMap
+    }
 }
