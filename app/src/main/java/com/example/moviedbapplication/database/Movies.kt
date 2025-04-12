@@ -33,9 +33,9 @@ class Movies {
             backdropPath = "/2Nti3gYAX513wvhp8IiLL6ZDyOm.jpg",
             releaseDate = "2025-03-31",
             overview = "Four misfits find themselves struggling with ordinary problems when they are suddenly pulled through a mysterious portal into the Overworld: a bizarre, cubic wonderland that thrives on imagination. To get back home, they'll have to master this world while embarking on a magical quest with an unexpected, expert crafter, Steve.",
-            genres = listOf(10751, 35, 12, 14).mapNotNull { genreMap[it] },
+            genreIds = listOf(10751, 35, 12, 14),
             homepage = "https://www.minecraft-movie.com",
-            imdb_id = "tt3566834"
+            imdbId = "tt3566834"
         ),
         Movie(
             id = 324544,
@@ -44,9 +44,9 @@ class Movies {
             backdropPath = "/op3qmNhvwEvyT7UFyPbIfQmKriB.jpg",
             releaseDate = "2025-02-27",
             overview = "A queen sends the powerful and feared sorceress Gray Alys to the ghostly wilderness of the Lost Lands in search of a magical power, where the sorceress and her guide, the drifter Boyce must outwit and outfight man and demon.",
-            genres = listOf(14, 12, 28).mapNotNull { genreMap[it] },
+            genreIds = listOf(14, 12, 28),
             homepage = "https://inthelostlands.com",
-            imdb_id = "tt4419684"
+            imdbId = "tt4419684"
         ),
         Movie(
             id = 1195506,
@@ -55,9 +55,9 @@ class Movies {
             backdropPath = "/sNx1A3822kEbqeUxvo5A08o4N7o.jpg",
             releaseDate = "2025-03-12",
             overview = "When the girl of his dreams is kidnapped, everyman Nate turns his inability to feel pain into an unexpected strength in his fight to get her back.",
-            genres = listOf(28, 35, 53).mapNotNull { genreMap[it] },
+            genreIds = listOf(28, 35, 53),
             homepage = "https://www.novocainemovie.com",
-            imdb_id = "tt29603959"
+            imdbId = "tt29603959"
         ),
         Movie(
             id = 1229730,
@@ -66,9 +66,9 @@ class Movies {
             backdropPath = "/is9bmV6uYXu7LjZGJczxrjJDlv8.jpg",
             releaseDate = "2025-03-27",
             overview = "By day, they're invisible—valets, hostesses, and bartenders at a luxury hotel. By night, they're the Carjackers, a crew of skilled drivers who track and rob wealthy clients on the road. As they plan their ultimate heist, the hotel director hires a ruthless hitman, to stop them at all costs. With danger closing in, can Nora, Zoe, Steve, and Prestance pull off their biggest score yet?",
-            genres = listOf(28, 12).mapNotNull { genreMap[it] },
+            genreIds = listOf(28, 12),
             homepage =  "https://www.amazon.com/gp/video/detail/B0DCYJL1GN",
-            imdb_id = "tt35683795"
+            imdbId = "tt35683795"
         ),
         Movie(
             id = 822119,
@@ -77,9 +77,9 @@ class Movies {
             backdropPath = "/ce3prrjh9ZehEl5JinNqr4jIeaB.jpg",
             releaseDate = "2025-02-12",
             overview = "After meeting with newly elected U.S. President Thaddeus Ross, Sam finds himself in the middle of an international incident. He must discover the reason behind a nefarious global plot before the true mastermind has the entire world seeing red.",
-            genres = listOf(28, 53, 878).mapNotNull { genreMap[it] },
+            genreIds = listOf(28, 53, 878),
             homepage = "https://www.marvel.com/movies/captain-america-brave-new-world",
-            imdb_id = "tt14513804"
+            imdbId = "tt14513804"
         )
 
     )
@@ -89,21 +89,29 @@ class Movies {
     fun getMovieById(id: Long): Movie? {
         return movies.find { it.id == id }
     }
+
     fun moviesByGenre(genre: String): List<Movie> {
-        return movies.filter { it.genres.contains(genre) }
+        return movies.filter { movie ->
+            movie.genreIds?.any { genreMap[it] == genre } ?: false
+        }
     }
 
-    fun createSectionedMoviesByGenre(movies: List<Movie>): Map<String, List<Movie>> {
+
+    fun createSectionedMoviesByGenre(movies: List<Movie>): MutableMap<String, MutableList<Movie>> {
         val sectionMap = mutableMapOf<String, MutableList<Movie>>()
 
         for (movie in movies) {
-            for (genre in movie.genres) {
-                // genre is already a String thanks to your mapNotNull above
-                val list = sectionMap.getOrPut(genre) { mutableListOf() }
-                list.add(movie)
+            // For each genre ID in the movie, find the corresponding genre name
+            for (genreId in movie.genreIds!!) {
+                val genre = genreMap[genreId] // Get genre name from the genreMap
+                if (genre != null) {
+                    val list = sectionMap.getOrPut(genre) { mutableListOf() }
+                    list.add(movie)
+                }
             }
         }
 
         return sectionMap
     }
+
 }

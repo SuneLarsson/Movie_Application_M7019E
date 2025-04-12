@@ -28,6 +28,7 @@ import com.example.moviedbapplication.ui.DetailScreen
 import com.example.moviedbapplication.ui.MainScreen
 import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.ui.ThirdScreen
+import com.example.moviedbapplication.ui.fetchMovies
 
 
 enum class MovieScreen {
@@ -57,6 +58,8 @@ fun MovieApp(
     val currentScreen = MovieScreen.entries.find { route ->
         currentRoute?.startsWith(route.name) == true
     } ?: MovieScreen.Main
+
+    fetchMovies("popular", movieViewModel)
 
 
     Scaffold(
@@ -115,5 +118,6 @@ fun MovieApp(
 
         }
     }
+}
 
-    }
+

@@ -118,11 +118,13 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                         style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.padding(8.dp))
 
-                    Text(text = movie.releaseDate,
-                        style = MaterialTheme.typography.bodySmall)
+                    movie.releaseDate?.let {
+                        Text(text = it,
+                            style = MaterialTheme.typography.bodySmall)
+                    }
                     Spacer(modifier = Modifier.padding(8.dp))
 
-                    HomepageHyperlink(homepageUrl = movie.homepage)
+                    movie.homepage?.let { HomepageHyperlink(homepageUrl = it) }
                     Spacer(modifier = Modifier.padding(8.dp))
 
 //                    LazyRow {
@@ -133,9 +135,10 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp) // Spacing between items
                     ) {
-                        items(movie.genres) { genre ->
+                        items(movie.genreIds ?: emptyList()) { genreId ->
+                            val genreName = genreMap[genreId] ?: "Unknown Genre"  // Default to "Unknown Genre" if not found in the map
                             Text(
-                                text = genre,
+                                text = genreName,
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
@@ -155,7 +158,7 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     modifier = Modifier.padding(vertical = 0.dp))
             }
             Button(
-                onClick = { openImdbPage(context, movie.imdb_id) },
+                onClick = { movie.imdbId?.let { openImdbPage(context, it) } },
                 modifier = Modifier.size(92.dp, 35.dp)
                     .padding(vertical = 2.dp)
             ) {
@@ -165,9 +168,11 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
             }
         }
 
-        Text(text = movie.overview,
-            style = MaterialTheme.typography.bodySmall
-        )
+        movie.overview?.let {
+            Text(text = it,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Spacer(modifier = Modifier.padding(8.dp))
     }
 
@@ -176,4 +181,26 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
 
 
 }
+
+val genreMap = mapOf(
+    28 to "Action",
+    12 to "Adventure",
+    16 to "Animation",
+    35 to "Comedy",
+    80 to "Crime",
+    99 to "Documentary",
+    18 to "Drama",
+    10751 to "Family",
+    14 to "Fantasy",
+    36 to "History",
+    27 to "Horror",
+    10402 to "Music",
+    9648 to "Mystery",
+    10749 to "Romance",
+    878 to "Science Fiction",
+    10770 to "TV Movie",
+    53 to "Thriller",
+    10752 to "War",
+    37 to "Western"
+)
 

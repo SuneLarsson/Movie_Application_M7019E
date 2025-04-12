@@ -45,6 +45,7 @@ import com.example.moviedbapplication.utils.Constants
 @Composable
 fun MainScreen(movieViewModel: MovieViewModel = MovieViewModel(), navController: NavController) {
     Scaffold { innerPadding ->
+        fetchMovies("popular", movieViewModel)
         MovieDBApp(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
@@ -80,7 +81,9 @@ fun MovieDBApp(modifier: Modifier = Modifier, navController: NavController, movi
             )
         } else {
             MovieGrid(
-                sectionedMovies = Movies().createSectionedMoviesByGenre(movies),
+                sectionedMovies = Movies().createSectionedMoviesByGenre(
+                    movies = movies
+                ),
                 modifier = modifier,
                 navController = navController
             )
@@ -132,15 +135,19 @@ fun MovieCard(movie: Movie, modifier: Modifier = Modifier, navController: NavCon
                     style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                Text(text = movie.releaseDate,
-                    style = MaterialTheme.typography.bodySmall)
+                movie.releaseDate?.let {
+                    Text(text = it,
+                        style = MaterialTheme.typography.bodySmall)
+                }
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                Text(text = movie.overview,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+                movie.overview?.let {
+                    Text(text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 Spacer(modifier = Modifier.padding(8.dp))
 
             }
@@ -184,6 +191,7 @@ fun MovieGrid(
         }
     }
 }
+
 @Composable
 fun MovieGridCard(movie: Movie, modifier: Modifier = Modifier, navController: NavController){
     val context = LocalContext.current
@@ -194,7 +202,6 @@ fun MovieGridCard(movie: Movie, modifier: Modifier = Modifier, navController: Na
         }
     ) {
         Box {
-
             AsyncImage(
                 model = Constants.POSTER_IMAGE_BASE_URL + Constants.GRID_IMAGE_BASE_WIDTH + movie.posterPath,
                 contentDescription = movie.title,
@@ -205,10 +212,10 @@ fun MovieGridCard(movie: Movie, modifier: Modifier = Modifier, navController: Na
                 contentScale = ContentScale.Crop
             )
         }
-
-
     }
+}
 
-
+fun fetchMovies(movieType: String, movieViewModel: MovieViewModel){
+    movieViewModel.getMovies(movieType)
 }
 
