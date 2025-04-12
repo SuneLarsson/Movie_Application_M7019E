@@ -114,4 +114,8 @@ class Movies {
         return sectionMap
     }
 
+    fun getGenreMap(): Map<Int, String> {
+        return genreMap
+    }
+
 }

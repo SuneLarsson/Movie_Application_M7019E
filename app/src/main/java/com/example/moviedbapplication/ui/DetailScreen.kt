@@ -38,7 +38,7 @@ import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.utils.Constants
 
 @Composable
-fun DetailScreen(navController: NavController, movie: Movie) {
+fun DetailScreen(navController: NavController, movie: Movie, movieViewModel: MovieViewModel) {
     Log.d("DetailScreen", "Displaying details for movieId: ${movie.id}")
     Scaffold { innerPadding ->
         Column(modifier = Modifier
@@ -47,7 +47,8 @@ fun DetailScreen(navController: NavController, movie: Movie) {
             DetailsCard(
                 modifier = Modifier.padding(innerPadding),
                 navController = navController,
-                movie = movie
+                movie = movie,
+                movieViewModel = movieViewModel
             )
 
         }
@@ -94,8 +95,9 @@ fun HomepageHyperlink(homepageUrl: String) {
 
 
 @Composable
-fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, movie: Movie){
+fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, movie: Movie, movieViewModel: MovieViewModel){
     val context = LocalContext.current
+
 
     Column(modifier = modifier) {
         Row {
@@ -135,6 +137,7 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp) // Spacing between items
                     ) {
+                        val genreMap = Movies().getGenreMap()
                         items(movie.genreIds ?: emptyList()) { genreId ->
                             val genreName = genreMap[genreId] ?: "Unknown Genre"  // Default to "Unknown Genre" if not found in the map
                             Text(
@@ -181,26 +184,4 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
 
 
 }
-
-val genreMap = mapOf(
-    28 to "Action",
-    12 to "Adventure",
-    16 to "Animation",
-    35 to "Comedy",
-    80 to "Crime",
-    99 to "Documentary",
-    18 to "Drama",
-    10751 to "Family",
-    14 to "Fantasy",
-    36 to "History",
-    27 to "Horror",
-    10402 to "Music",
-    9648 to "Mystery",
-    10749 to "Romance",
-    878 to "Science Fiction",
-    10770 to "TV Movie",
-    53 to "Thriller",
-    10752 to "War",
-    37 to "Western"
-)
 

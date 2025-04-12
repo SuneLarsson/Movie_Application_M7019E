@@ -3,7 +3,10 @@ package com.example.moviedbapplication.models
 import com.google.gson.annotations.SerializedName
 
 data class Movie(
+    @SerializedName("id")
     val id: Long,
+
+    @SerializedName("title")
     val title: String,
 
     @SerializedName("poster_path")
@@ -15,11 +18,13 @@ data class Movie(
     @SerializedName("release_date")
     val releaseDate: String?,
 
+    @SerializedName("overview")
     val overview: String?,
 
     @SerializedName("genre_ids")
     val genreIds: List<Int>? = emptyList(),
 
+    @SerializedName("homepage")
     val homepage: String? = null,  // not available in all endpoints
 
     @SerializedName("imdb_id")
