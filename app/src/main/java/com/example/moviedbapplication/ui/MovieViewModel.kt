@@ -22,31 +22,40 @@ class MovieViewModel : ViewModel(){
     val uiState: StateFlow<MovieUiState> = _uiState.asStateFlow()
 
 
-    init {
-        getMovies(movieType = "popular")
-        setCategory("popular")
-    }
-
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
     fun setMovieById(movieId: Long) {
+        // Only trigger API call if the movie is not already loaded
+        if (_uiState.value.movie != null) return
+
         viewModelScope.launch {
             try {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        loading = true,  // Set loading to true while fetching movie
+                        movie = null     // Clear the previous movie data
+                    )
+                }
 
-                val movie = RetrofitInstance.movieApi.getMovie(
+                val response = RetrofitInstance.movieApi.getMovie(
                     movieId = movieId.toString(),
                     authHeader = "Bearer ${SECRETS.API_KEY}"
                 )
-                if (movie.isSuccessful) {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movie = movie.body()
-                        )
 
-                    }
-                }else {
+                if (response.isSuccessful) {
+                    Log.d("MovieViewModel", "API call successful. Movie data: ${response.body()}")
                     _uiState.update { currentState ->
                         currentState.copy(
-                            movie = null
+                            movie = response.body(),
+                            loading = false // Set loading to false after receiving the movie data
+                        )
+                    }
+                } else {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            movie = null,
+                            loading = false // Set loading to false after failure
                         )
                     }
                 }
@@ -55,13 +64,15 @@ class MovieViewModel : ViewModel(){
                 Log.e("MovieViewModel", "Error occurred during API call", e)
                 _uiState.update { currentState ->
                     currentState.copy(
-                        movie = null
+                        movie = null,
+                        loading = false // Set loading to false after failure
                     )
                 }
             }
-
         }
     }
+
+
 
     fun getMovieById(movieId: Long) : Movie?{
         return _uiState.value.movie
@@ -82,47 +93,63 @@ class MovieViewModel : ViewModel(){
 
 
     fun getMovies(apiKey: String = SECRETS.API_KEY, movieType: String ) {
-        viewModelScope.launch {
-            try {
-                Log.d("MovieViewModel", "API call started with movieType: $movieType")
 
-                val response = RetrofitInstance.api.getMovies(
-                    movieType = movieType,
-                    authHeader = "Bearer ${SECRETS.API_KEY}"
-
+        if (_uiState.value.movieType == movieType) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    movies = _uiState.value.latestMovies
                 )
+            }
+        } else {
+            viewModelScope.launch {
+                try {
+                    Log.d("MovieViewModel", "API call started with movieType: $movieType")
+
+                    val response = RetrofitInstance.api.getMovies(
+                        movieType = movieType,
+                        authHeader = "Bearer ${SECRETS.API_KEY}"
+
+                    )
 
 
-                if (response.isSuccessful) {
+                    if (response.isSuccessful) {
 
-                    Log.d("MovieViewModel", "API call successful. Number of movies: ${response.body()?.results?.size}")
-
-                    val movies = response.body()?.results ?: emptyList<Movie>()
-
-
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movies = movies,
-                            latestMovies = movies,
+                        Log.d(
+                            "MovieViewModel",
+                            "API call successful. Number of movies: ${response.body()?.results?.size}"
                         )
-                    }
-                    setCategory(movieType)
-                } else {
 
-                    Log.e("MovieViewModel", "API call failed with status code: ${response.code()}")
+                        val movies = response.body()?.results ?: emptyList<Movie>()
+
+
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                movies = movies,
+                                latestMovies = movies,
+                                movieType = movieType
+                            )
+                        }
+                        setCategory(movieType)
+                    } else {
+
+                        Log.e(
+                            "MovieViewModel",
+                            "API call failed with status code: ${response.code()}"
+                        )
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                movies = emptyList()
+
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MovieViewModel", "Error occurred during API call", e)
                     _uiState.update { currentState ->
                         currentState.copy(
                             movies = emptyList()
-
                         )
                     }
-                }
-            } catch (e: Exception) {
-                Log.e("MovieViewModel", "Error occurred during API call", e)
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        movies = emptyList()
-                    )
                 }
             }
         }
@@ -152,6 +179,13 @@ class MovieViewModel : ViewModel(){
 
         }
     }
+
+    fun resetMovie() {
+        _uiState.update { currentState ->
+            currentState.copy(movie = null, loading = false)
+        }
+    }
+
 
 
 }

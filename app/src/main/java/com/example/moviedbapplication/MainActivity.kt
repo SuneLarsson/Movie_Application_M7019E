@@ -20,20 +20,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.ui.DetailScreen
 import com.example.moviedbapplication.ui.MainScreen
 import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.ui.ThirdScreen
-import com.example.moviedbapplication.ui.fetchMovies
 
 
 enum class MovieScreen {
@@ -45,12 +46,28 @@ enum class MovieScreen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
-            MovieApp()
+            MainScreenContent()
         }
     }
 }
 
+@Composable
+fun MainScreenContent() {
+    val movieViewModel: MovieViewModel = viewModel()
+
+    val uiState by movieViewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.movies.isEmpty()) {
+        if (uiState.movies.isEmpty()) {
+            movieViewModel.getMovies(movieType = "popular")
+            movieViewModel.setCategory("popular")
+        }
+    }
+
+    MovieApp(movieViewModel = movieViewModel)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +75,8 @@ fun MovieApp(
     navController: NavHostController = rememberNavController(),
     movieViewModel: MovieViewModel = MovieViewModel(),
 ) {
+
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val currentScreen = MovieScreen.entries.find { route ->
@@ -93,36 +112,63 @@ fun MovieApp(
 
         ) {
             composable(MovieScreen.Main.name) {
+                movieViewModel.resetMovie()
                 MainScreen(movieViewModel,navController)
             }
             composable(
                 "${MovieScreen.Details.name}/{movieId}",
-                arguments = listOf(navArgument("movieId") {
-                    type = NavType.LongType
-                }) // Use NavType.LongType
+                arguments = listOf(navArgument("movieId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getLong("movieId")
 
                 if (movieId == null) {
                     Log.e("NavHost", "movieId is null or not passed in route!")
                     return@composable
-                } else {
-                    Log.d("NavHost", "Received movieId: $movieId")
                 }
-                movieViewModel.setMovieById(movieId)
-                val movie = movieViewModel.getMovieById(movieId)
 
-                if (movie == null) {
-                    Log.e("NavHost", "No movie found for movieId: $movieId")
-                    return@composable
-                } else {
-                    Log.d("NavHost", "Found movie: ${movie.title}")
+                Log.d("NavHost", "Received movieId: $movieId")
+
+                // Only set movie if it's not already loaded
+                val movie = movieViewModel.uiState.collectAsState().value.movie
+                val isLoading by movieViewModel.loading.collectAsState()
+
+                // If movie data is not already loaded, trigger API call
+                if (movie == null && !isLoading) {
+                    movieViewModel.setMovieById(movieId)
                 }
-                DetailScreen(
-                    navController, movie,
-                    movieViewModel = movieViewModel
-                )
+
+                // Observe loading and movie data state
+                val currentMovie = movieViewModel.uiState.collectAsState().value.movie
+
+                // Show loading indicator until data is fetched
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else if (currentMovie != null) {
+                    // Movie is ready, show the details screen
+                    DetailScreen(
+                        navController, currentMovie,
+                        movieViewModel = movieViewModel
+                    )
+                } else {
+                    // Handle the case where the movie could not be fetched or is null
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No movie found.")
+                    }
+                }
             }
+
+
+
+
+
             composable(MovieScreen.Third.name) {
                 ThirdScreen(navController)
             }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -34,6 +35,7 @@ import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviedbapplication.database.Movies
+import com.example.moviedbapplication.models.Genre
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.utils.Constants
 
@@ -129,23 +131,8 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     movie.homepage?.let { HomepageHyperlink(homepageUrl = it) }
                     Spacer(modifier = Modifier.padding(8.dp))
 
-//                    LazyRow {
-//                        Text(text = movie.genres.joinToString(", "),
-//                            style = MaterialTheme.typography.bodySmall)
-//                        Spacer(modifier = Modifier.padding(8.dp))
-//                    }
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp) // Spacing between items
-                    ) {
-                        val genreMap = Movies().getGenreMap()
-                        items(movie.genreIds ?: emptyList()) { genreId ->
-                            val genreName = genreMap[genreId] ?: "Unknown Genre"  // Default to "Unknown Genre" if not found in the map
-                            Text(
-                                text = genreName,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
+                    movie.genres?.let { MovieGenresList(genres = it) }
+
 
 
                 }
@@ -179,9 +166,18 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
         Spacer(modifier = Modifier.padding(8.dp))
     }
 
-
-
-
-
 }
 
+
+@Composable
+fun MovieGenresList(genres: List<Genre>) {
+    LazyRow (horizontalArrangement = Arrangement.spacedBy(8.dp) ){
+        items(genres) { genre ->
+            Text(
+                text = genre.name,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(vertical = 4.dp)  // Add some padding for spacing
+            )
+        }
+    }
+}

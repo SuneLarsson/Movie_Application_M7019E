@@ -43,6 +43,7 @@ import com.example.moviedbapplication.utils.Constants
 @Composable
 fun MainScreen(movieViewModel: MovieViewModel = MovieViewModel(), navController: NavController) {
     Scaffold { innerPadding ->
+
         MovieDBApp(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
@@ -76,6 +77,8 @@ fun MovieDBApp(
     val fullGenreMap = Movies().getGenreMap()
     val usedGenreIds = movies.flatMap { it.genreIds!! }.toSet()
     val genreMap = fullGenreMap.filterKeys { it in usedGenreIds }
+
+
 
     Column {
         MovieDBAppTopRow(

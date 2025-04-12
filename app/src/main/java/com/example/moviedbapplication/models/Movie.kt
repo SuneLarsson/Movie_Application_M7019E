@@ -30,20 +30,14 @@ data class Movie(
     @SerializedName("imdb_id")
     val imdbId: String? = null,
 
-//    val adult: Boolean = false,
-//    @SerializedName("original_language")
-//    val originalLanguage: String = "en",  // defaulting to "en" if it's missing
-//
-//    @SerializedName("original_title")
-//    val originalTitle: String? = null,
-//
-//    val popularity: Float = 0f,
-//
-//    @SerializedName("vote_average")
-//    val voteAverage: Float = 0f,
-//
-//    @SerializedName("vote_count")
-//    val voteCount: Int = 0,
-//
-//    val video: Boolean = false
+    @SerializedName("genres")
+    val genres: List<Genre>? = emptyList()
+
+)
+
+data class Genre(
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("name")
+    val name: String
 )
