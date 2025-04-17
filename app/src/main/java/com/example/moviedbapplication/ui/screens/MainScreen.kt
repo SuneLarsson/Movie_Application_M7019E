@@ -82,53 +82,23 @@ fun MovieDBApp(
 
 
 
-    Column {
+    Column{
         MovieDBAppTopRow(
             movieViewModel = movieViewModel,
             expanded = expanded,
-            onExpandedChange = { expanded = it }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Toggle Grid") },
-                onClick = {
-                    movieViewModel.toggleGrid()
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Filter by Genre") },
-                onClick = {
-                    expanded = false
-                    genreMenuExpanded = true
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Filter by Category") },
-                onClick = {
-                    expanded = false
-                    categoryMenuExpanded = true
-                }
-            )
-        }
-
-        GenreDropdownMenu(
-            expanded = genreMenuExpanded,
-            onDismissRequest = { genreMenuExpanded = false },
+            onExpandedChange = { expanded = it },
+            onGenreClick = { genreMenuExpanded = true },
+            onCategoryClick = { categoryMenuExpanded = true },
+            genreMenuExpanded = genreMenuExpanded,
+            onGenreMenuChange = { genreMenuExpanded = it },
+            categoryMenuExpanded = categoryMenuExpanded,
+            onCategoryMenuChange = { categoryMenuExpanded = it },
             genreMap = genreMap,
-            movieViewModel = movieViewModel
+            selectedCategory = selectedCategory
         )
 
-        CategoryDropdownMenu(
-            expanded = categoryMenuExpanded,
-            onDismissRequest = { categoryMenuExpanded = false },
-            selectedCategory = selectedCategory,
-            movieViewModel = movieViewModel
-        )
+
+
 
         if (!isGrid) {
             MovieList(
@@ -147,32 +117,83 @@ fun MovieDBApp(
     }
 }
 
-
 @Composable
 fun MovieDBAppTopRow(
     movieViewModel: MovieViewModel,
     expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit
+    onExpandedChange: (Boolean) -> Unit,
+    onGenreClick: () -> Unit,
+    onCategoryClick: () -> Unit,
+    genreMenuExpanded: Boolean,
+    onGenreMenuChange: (Boolean) -> Unit,
+    categoryMenuExpanded: Boolean,
+    onCategoryMenuChange: (Boolean) -> Unit,
+    genreMap: Map<Int, String>,
+    selectedCategory: String?
+
 ) {
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         MovieCategoryTitle(movieViewModel)
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
+        Spacer(modifier = Modifier.weight(1f))
+
+        Box {
             Button(
-                onClick = { onExpandedChange(true) },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(end = 16.dp)
+                onClick = { onExpandedChange(true) }
             ) {
                 Text("Options")
             }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { onExpandedChange(false) }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Toggle Grid") },
+                    onClick = {
+                        movieViewModel.toggleGrid()
+                        onExpandedChange(false)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Filter by Genre") },
+                    onClick = {
+                        onGenreClick()
+                        onExpandedChange(false)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Filter by Category") },
+                    onClick = {
+                        onCategoryClick()
+                        onExpandedChange(false)
+                    }
+                )
+            }
+            GenreDropdownMenu(
+                expanded = genreMenuExpanded,
+                onDismissRequest = { onGenreMenuChange(false) },
+                genreMap = genreMap,
+                movieViewModel = movieViewModel
+            )
+
+            CategoryDropdownMenu(
+                expanded = categoryMenuExpanded,
+                onDismissRequest = { onCategoryMenuChange(false) },
+                selectedCategory = selectedCategory,
+                movieViewModel = movieViewModel
+            )
         }
     }
+
+
 }
+
 
 @Composable
 fun GenreDropdownMenu(
