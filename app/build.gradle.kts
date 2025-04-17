@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.squareup.retrofit2)
     implementation(libs.squareup.gson.converter)
     implementation(libs.squareup.okhttp.logging)
+    implementation(libs.places)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

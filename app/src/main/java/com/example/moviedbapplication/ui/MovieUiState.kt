@@ -1,6 +1,7 @@
 package com.example.moviedbapplication.ui
 
 import com.example.moviedbapplication.models.Movie
+import com.example.moviedbapplication.models.Review
 
 
 data class MovieUiState(
@@ -11,5 +12,6 @@ data class MovieUiState(
     val latestMovies: List<Movie> = emptyList(),
     val isGrid: Boolean = false,
     val selectedCategory: String? = null,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val reviews: List<Review> = emptyList()
 )

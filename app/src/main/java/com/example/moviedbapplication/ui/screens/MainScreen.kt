@@ -1,4 +1,4 @@
-package com.example.moviedbapplication.ui
+package com.example.moviedbapplication.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.example.moviedbapplication.MovieScreen
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie
+import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
 
 @Composable

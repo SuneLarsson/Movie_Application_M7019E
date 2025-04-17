@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 
+
 class MovieViewModel : ViewModel(){
 
 
@@ -24,6 +25,11 @@ class MovieViewModel : ViewModel(){
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+//    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
+//    val reviews: StateFlow<List<Review>> = _reviews
+
+
 
     fun setMovieById(movieId: Long) {
         // Only trigger API call if the movie is not already loaded
@@ -155,6 +161,49 @@ class MovieViewModel : ViewModel(){
         }
     }
 
+    fun getMovieReviews(movieId: Long, apiKey: String = SECRETS.API_KEY) {
+        viewModelScope.launch {
+            _loading.value = true
+
+            try {
+                Log.d("MovieViewModel", "Fetching reviews for movieId: $movieId")
+
+                val response = RetrofitInstance.reviewApi.getReviews(
+                    movieId = movieId,
+                    authHeader = "Bearer $apiKey"
+                )
+
+                if (response.isSuccessful) {
+                    val reviews = response.body()?.results ?: emptyList()
+                    Log.d("MovieViewModel", "Fetched ${reviews.size} reviews")
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            reviews = reviews
+                        )
+                    }
+
+                } else {
+                    Log.e("MovieViewModel", "Failed to get reviews. Code: ${response.code()}")
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            reviews = emptyList()
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MovieViewModel", "Error fetching reviews", e)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        reviews = emptyList()
+                    )
+                }
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
 
 
     fun getMoviesByGenre(genre: String) {

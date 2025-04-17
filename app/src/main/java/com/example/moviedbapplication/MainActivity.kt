@@ -24,17 +24,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.moviedbapplication.ui.DetailScreen
-import com.example.moviedbapplication.ui.MainScreen
+import com.example.moviedbapplication.ui.screens.DetailScreen
+import com.example.moviedbapplication.ui.screens.MainScreen
 import com.example.moviedbapplication.ui.MovieViewModel
-import com.example.moviedbapplication.ui.ThirdScreen
+import com.example.moviedbapplication.ui.screens.ThirdScreen
 
 
 enum class MovieScreen {
@@ -166,11 +165,12 @@ fun MovieApp(
             }
 
 
-
-
-
-            composable(MovieScreen.Third.name) {
-                ThirdScreen(navController)
+            composable(
+                "${MovieScreen.Third.name}/{movieId}",
+                arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val movieId = backStackEntry.arguments?.getLong("movieId") ?: return@composable
+                ThirdScreen(navController = navController, movieViewModel = movieViewModel, movieId = movieId)
             }
 
         }

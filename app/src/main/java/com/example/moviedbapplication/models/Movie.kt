@@ -1,5 +1,6 @@
 package com.example.moviedbapplication.models
 
+import com.google.android.libraries.places.api.model.Review
 import com.google.gson.annotations.SerializedName
 
 data class Movie(
@@ -41,3 +42,4 @@ data class Genre(
     @SerializedName("name")
     val name: String
 )
+

@@ -1,4 +1,4 @@
-package com.example.moviedbapplication.ui
+package com.example.moviedbapplication.ui.screens
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -14,11 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,18 +27,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.moviedbapplication.database.Movies
+import com.example.moviedbapplication.MovieScreen
 import com.example.moviedbapplication.models.Genre
 import com.example.moviedbapplication.models.Movie
+import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
 
 @Composable
-fun DetailScreen(navController: NavController, movie: Movie, movieViewModel: MovieViewModel) {
+fun DetailScreen(
+    navController: NavController,
+    movie: Movie,
+    movieViewModel: MovieViewModel) {
     Log.d("DetailScreen", "Displaying details for movieId: ${movie.id}")
     Scaffold { innerPadding ->
         Column(modifier = Modifier
@@ -139,7 +140,7 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
             }
         Row (modifier = modifier.align(Alignment.CenterHorizontally)){
             Button(
-                onClick = { navController.navigate("third") },
+                onClick = { navController.navigate("${MovieScreen.Third.name}/${movie.id}") },
                 modifier = Modifier.size(92.dp, 35.dp)
                     .padding(vertical = 2.dp)
             ) {
