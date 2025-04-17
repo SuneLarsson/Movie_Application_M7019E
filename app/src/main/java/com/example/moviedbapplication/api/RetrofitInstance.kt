@@ -44,5 +44,14 @@ object RetrofitInstance {
             .create(TMDBApiReview::class.java)
     }
 
+    val videoApi: TMDBApiVideo by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TMDBApiVideo::class.java)
+    }
+
 
 }

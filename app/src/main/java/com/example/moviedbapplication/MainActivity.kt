@@ -118,43 +118,16 @@ fun MovieApp(
                 "${MovieScreen.Details.name}/{movieId}",
                 arguments = listOf(navArgument("movieId") { type = NavType.LongType })
             ) { backStackEntry ->
+
                 val movieId = backStackEntry.arguments?.getLong("movieId")
+                movieViewModel.setMovieId(movieId!!)
 
-                if (movieId == null) {
-                    Log.e("NavHost", "movieId is null or not passed in route!")
-                    return@composable
-                }
-
-                Log.d("NavHost", "Received movieId: $movieId")
-
-                // Only set movie if it's not already loaded
-                val movie = movieViewModel.uiState.collectAsState().value.movie
-                val isLoading by movieViewModel.loading.collectAsState()
-
-                // If movie data is not already loaded, trigger API call
-                if (movie == null && !isLoading) {
-                    movieViewModel.setMovieById(movieId)
-                }
-
-                // Observe loading and movie data state
-                val currentMovie = movieViewModel.uiState.collectAsState().value.movie
-
-                // Show loading indicator until data is fetched
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (currentMovie != null) {
-                    // Movie is ready, show the details screen
+                if (movieId != null) {
                     DetailScreen(
-                        navController, currentMovie,
+                        navController,
                         movieViewModel = movieViewModel
                     )
                 } else {
-                    // Handle the case where the movie could not be fetched or is null
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center

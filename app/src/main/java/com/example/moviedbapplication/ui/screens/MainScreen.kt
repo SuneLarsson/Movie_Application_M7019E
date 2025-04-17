@@ -66,6 +66,7 @@ fun MovieDBApp(
     navController: NavController,
     movieViewModel: MovieViewModel
 ) {
+
     val uiState by movieViewModel.uiState.collectAsState()
     val isGrid = uiState.isGrid
     val movies = uiState.movies

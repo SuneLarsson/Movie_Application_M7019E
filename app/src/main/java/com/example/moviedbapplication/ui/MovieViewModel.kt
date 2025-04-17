@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import com.example.moviedbapplication.models.Video
 
 
 class MovieViewModel : ViewModel(){
@@ -29,7 +30,35 @@ class MovieViewModel : ViewModel(){
 //    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
 //    val reviews: StateFlow<List<Review>> = _reviews
 
+    fun setVideos(movieId: Long){
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.videoApi.getVideos(
+                    movieId = movieId.toString() ,
+                    authHeader = "Bearer ${SECRETS.API_KEY}"
+                )
 
+                if (response.isSuccessful){
+                    val videos = response.body()?.results ?: emptyList<Video>()
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            videos = videos
+                        )
+                    }
+                }
+                else {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            videos = emptyList()
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MovieViewModel", "Error occurred during API call", e)
+            }
+        }
+    }
 
     fun setMovieById(movieId: Long) {
         // Only trigger API call if the movie is not already loaded
@@ -51,6 +80,7 @@ class MovieViewModel : ViewModel(){
 
                 if (response.isSuccessful) {
                     Log.d("MovieViewModel", "API call successful. Movie data: ${response.body()}")
+
                     _uiState.update { currentState ->
                         currentState.copy(
                             movie = response.body(),
@@ -84,6 +114,13 @@ class MovieViewModel : ViewModel(){
         return _uiState.value.movie
     }
 
+    fun setMovieId(movieId: Long) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                movieId = movieId
+            )
+        }
+    }
 
     fun toggleGrid() {
         _uiState.update { it.copy(isGrid = !it.isGrid) }

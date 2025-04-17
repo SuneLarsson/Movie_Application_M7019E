@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +23,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -36,13 +43,14 @@ import com.example.moviedbapplication.models.Genre
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 @Composable
 fun DetailScreen(
     navController: NavController,
-    movie: Movie,
     movieViewModel: MovieViewModel) {
-    Log.d("DetailScreen", "Displaying details for movieId: ${movie.id}")
     Scaffold { innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)
@@ -50,7 +58,6 @@ fun DetailScreen(
             DetailsCard(
                 modifier = Modifier.padding(innerPadding),
                 navController = navController,
-                movie = movie,
                 movieViewModel = movieViewModel
             )
 
@@ -98,8 +105,12 @@ fun HomepageHyperlink(homepageUrl: String) {
 
 
 @Composable
-fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, movie: Movie, movieViewModel: MovieViewModel){
+fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, movieViewModel: MovieViewModel){
     val context = LocalContext.current
+    val uiState = movieViewModel.uiState.collectAsState()
+    val movieId = uiState.value.movieId
+    movieViewModel.setMovieById(movieId)
+    val movie = movieViewModel.getMovieById(movieId) ?: return
 
 
     Column(modifier = modifier) {
@@ -165,6 +176,7 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
             )
         }
         Spacer(modifier = Modifier.padding(8.dp))
+        VideoList(movieViewModel = movieViewModel)
     }
 
 }
@@ -180,5 +192,61 @@ fun MovieGenresList(genres: List<Genre>) {
                 modifier = Modifier.padding(vertical = 4.dp)  // Add some padding for spacing
             )
         }
+    }
+}
+
+@Composable
+fun VideoList(movieViewModel: MovieViewModel ) {
+    val uiState = movieViewModel.uiState.collectAsState()
+    val movieId = uiState.value.movieId
+
+    movieViewModel.setVideos(movieId)
+    val videos = uiState.value.videos
+
+    LazyRow {
+        items(videos) { video ->
+            ExoVideoPlayer(videoKey = video.key, site = video.site)
+        }
+    }
+}
+
+@Composable
+fun ExoVideoPlayer(videoKey: String, site: String) {
+    val context = LocalContext.current
+    val exoPlayer = ExoPlayer.Builder(context).build()
+    val videoUrl = getVideoUrl(site=site, key = videoKey) !!
+    val mediaSource = remember(videoUrl) {
+        MediaItem.fromUri(videoUrl)
+    }
+
+    LaunchedEffect(mediaSource) {
+        exoPlayer.setMediaItem(mediaSource)
+        exoPlayer.prepare()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.release()
+        }
+    }
+
+    AndroidView(
+        factory = { context ->
+            PlayerView(context).apply {
+                player = exoPlayer
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+    )
+}
+
+fun getVideoUrl(site: String, key: String): String? {
+    return when (site) {
+        "YouTube" -> "https://www.youtube.com/embed/$key"
+        "Vimeo" -> "https://player.vimeo.com/video/$key"
+        "Apple" -> null // No public embed support
+        else -> null // Unknown or unsupported
     }
 }
