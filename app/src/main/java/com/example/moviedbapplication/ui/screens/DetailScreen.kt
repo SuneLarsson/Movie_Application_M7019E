@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviedbapplication.MovieScreen
@@ -46,6 +48,10 @@ import com.example.moviedbapplication.utils.Constants
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+
 
 @Composable
 fun DetailScreen(
@@ -203,9 +209,27 @@ fun VideoList(movieViewModel: MovieViewModel ) {
     movieViewModel.setVideos(movieId)
     val videos = uiState.value.videos
 
-    LazyRow {
+//    LazyRow {
+//        items(videos) { video ->
+//            Log.d("YOUTUBE", "Video key: ${video.key}")
+//            VideoPlayer(videoKey = video.key, site =video.site)
+//        }
+//    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         items(videos) { video ->
-            ExoVideoPlayer(videoKey = video.key, site = video.site)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = video.name ?: "Video",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                VideoPlayer(videoKey = video.key, site = video.site)
+            }
         }
     }
 }
@@ -242,7 +266,42 @@ fun ExoVideoPlayer(videoKey: String, site: String) {
     )
 }
 
-fun getVideoUrl(site: String, key: String): String? {
+@Composable
+fun VideoPlayer(videoKey: String, site: String) {
+    when (site) {
+        "YouTube" -> YouTubePlayer(videoKey)
+        else -> ExoVideoPlayer(videoKey, site)
+    }
+}
+
+@Composable
+fun YouTubePlayer(videoKey: String) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    AndroidView(
+        factory = { ctx ->
+            YouTubePlayerView(ctx).apply {
+                enableAutomaticInitialization = false
+
+                lifecycleOwner.lifecycle.addObserver(this)
+
+                addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                    override fun onReady(youTubePlayer: YouTubePlayer) {
+                        youTubePlayer.loadVideo(videoKey, 0f)
+                    }
+                })
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+    )
+}
+
+
+
+private fun getVideoUrl(site: String, key: String): String? {
     return when (site) {
         "YouTube" -> "https://www.youtube.com/embed/$key"
         "Vimeo" -> "https://player.vimeo.com/video/$key"
