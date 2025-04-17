@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,7 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,6 +34,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -209,21 +219,19 @@ fun VideoList(movieViewModel: MovieViewModel ) {
     movieViewModel.setVideos(movieId)
     val videos = uiState.value.videos
 
-//    LazyRow {
-//        items(videos) { video ->
-//            Log.d("YOUTUBE", "Video key: ${video.key}")
-//            VideoPlayer(videoKey = video.key, site =video.site)
-//        }
-//    }
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+            .fillMaxWidth()
+        .padding(horizontal = 16.dp)) {
         items(videos) { video ->
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .width(300.dp) // 👈 Set a fixed width
                     .padding(vertical = 8.dp)
             ) {
                 Text(
-                    text = video.name ?: "Video",
+                    text = video.name.replace("\"", "") ?: "Video",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -273,39 +281,68 @@ fun VideoPlayer(videoKey: String, site: String) {
         else -> ExoVideoPlayer(videoKey, site)
     }
 }
-
 @Composable
 fun YouTubePlayer(videoKey: String) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    var playRequested by remember { mutableStateOf(false) }
 
-    AndroidView(
-        factory = { ctx ->
-            YouTubePlayerView(ctx).apply {
-                enableAutomaticInitialization = false
+    val thumbnailUrl = "https://img.youtube.com/vi/$videoKey/hqdefault.jpg"
 
-                lifecycleOwner.lifecycle.addObserver(this)
-
-                addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                    override fun onReady(youTubePlayer: YouTubePlayer) {
-                        youTubePlayer.loadVideo(videoKey, 0f)
-                    }
-                })
-            }
-        },
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-    )
+    ) {
+        if (playRequested) {
+            AndroidView(
+                factory = { ctx ->
+                    YouTubePlayerView(ctx).apply {
+                        enableAutomaticInitialization = false
+
+                        lifecycleOwner.lifecycle.addObserver(this)
+
+                        addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                            override fun onReady(youTubePlayer: YouTubePlayer) {
+                                youTubePlayer.loadVideo(videoKey, 0f)
+                            }
+                        })
+                    }
+                },
+                modifier = Modifier.matchParentSize()
+            )
+        } else {
+            AsyncImage( // from Coil
+                model = thumbnailUrl,
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .matchParentSize()
+            )
+
+            IconButton(
+                onClick = { playRequested = true },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .background(Color.Black.copy(alpha = 0.5f), shape = CircleShape)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Play",
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+        }
+    }
 }
 
-
-
 private fun getVideoUrl(site: String, key: String): String? {
-    return when (site) {
-        "YouTube" -> "https://www.youtube.com/embed/$key"
-        "Vimeo" -> "https://player.vimeo.com/video/$key"
-        "Apple" -> null // No public embed support
-        else -> null // Unknown or unsupported
+    return when (site.lowercase()) {
+        "youtube" -> "https://www.youtube.com/embed/$key"
+        "vimeo" -> "https://player.vimeo.com/video/$key"
+        "dailymotion" -> "https://www.dailymotion.com/embed/video/$key"
+        else -> null
     }
 }
