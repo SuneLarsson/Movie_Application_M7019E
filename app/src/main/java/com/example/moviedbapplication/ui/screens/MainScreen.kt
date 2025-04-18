@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.moviedbapplication.MovieScreen
+import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.ui.MovieViewModel
@@ -415,7 +415,7 @@ fun MovieGridCard(movie: Movie, modifier: Modifier = Modifier, navController: Na
     }
 }
 
-fun fetchMovies(movieType: String, movieViewModel: MovieViewModel){
+fun fetchMovies(movieType: String, movieViewModel: MovieViewModel) {
     movieViewModel.getMovies(movieType = movieType)
 }
 

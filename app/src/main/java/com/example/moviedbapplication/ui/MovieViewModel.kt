@@ -61,8 +61,8 @@ class MovieViewModel : ViewModel(){
     }
 
     fun setMovieById(movieId: Long) {
-        // Only trigger API call if the movie is not already loaded
-        if (_uiState.value.movie != null) return
+        if (_uiState.value.movie?.id == movieId) return
+
 
         viewModelScope.launch {
             try {
@@ -138,11 +138,10 @@ class MovieViewModel : ViewModel(){
     fun getMovies(apiKey: String = SECRETS.API_KEY, movieType: String ) {
 
         if (_uiState.value.movieType == movieType) {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    movies = _uiState.value.latestMovies
-                )
+            _uiState.update {
+                it.copy(movies = _uiState.value.latestMovies)
             }
+            return
         } else {
             viewModelScope.launch {
                 try {

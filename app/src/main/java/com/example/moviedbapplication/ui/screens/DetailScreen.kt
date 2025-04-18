@@ -50,7 +50,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.moviedbapplication.MovieScreen
+import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.models.Genre
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.ui.MovieViewModel
