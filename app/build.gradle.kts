@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
+
 
 android {
     namespace = "com.example.moviedbapplication"
@@ -63,6 +65,9 @@ dependencies {
     implementation (libs.androidx.media3.ui)
     implementation(libs.androidx.media3.common.ktx)
     implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

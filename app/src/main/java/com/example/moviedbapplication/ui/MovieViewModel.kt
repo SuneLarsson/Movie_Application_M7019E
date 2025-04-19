@@ -13,10 +13,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import com.example.moviedbapplication.database.MovieDao
+import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.models.Video
 
 
-class MovieViewModel : ViewModel(){
+class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
 
 
 
@@ -29,6 +31,55 @@ class MovieViewModel : ViewModel(){
 
 //    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
 //    val reviews: StateFlow<List<Review>> = _reviews
+
+    fun getFavoriteMovies() {
+        viewModelScope.launch {
+            movieDao.getAllMovies().collect { entityList ->
+                val movieList = entityList.map { it.toMovie() }
+                _uiState.value = _uiState.value.copy(movies = movieList)
+            }
+        }
+    }
+
+    fun addFavoriteMovie(movie: Movie) {
+        viewModelScope.launch {
+            movieDao.insert(movie.toEntity())
+        }
+    }
+
+    fun removeFavoriteMovie(movie: Movie) {
+        viewModelScope.launch {
+            movieDao.delete(movie.toEntity())
+        }
+    }
+
+
+    fun Movie.toEntity(): MovieEntity = MovieEntity(
+        id = id,
+        title = title,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        overview = overview,
+        genreIds = genreIds ?: emptyList(),
+        homepage = homepage,
+        imdbId = imdbId
+    )
+
+    fun MovieEntity.toMovie(): Movie = Movie(
+        id = id,
+        title = title,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        overview = overview,
+        genreIds = genreIds,
+        homepage = homepage,
+        imdbId = imdbId
+    )
+
+
+
 
     fun setVideos(movieId: Long){
         viewModelScope.launch {

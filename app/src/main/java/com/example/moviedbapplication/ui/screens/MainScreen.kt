@@ -42,7 +42,7 @@ import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
 
 @Composable
-fun MainScreen(movieViewModel: MovieViewModel = MovieViewModel(), navController: NavController) {
+fun MainScreen(movieViewModel: MovieViewModel, navController: NavController) {
     Scaffold { innerPadding ->
 
         MovieDBApp(
