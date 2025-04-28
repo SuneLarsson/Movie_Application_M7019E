@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,21 +38,37 @@ fun ThirdScreen(
     navController: NavController,
     movieId: Long,
     movieViewModel: MovieViewModel) {
-    Scaffold { padding ->
-        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-            Text("Third Screen")
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { navController.popBackStack() }) {
-                Text("Go Back")
+    Scaffold (
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text("Reviews", style = MaterialTheme.typography.headlineMedium)
+
+                if (navController.previousBackStackEntry != null) {
+                    IconButton(
+                        onClick = { navController.navigateUp() },
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier.size(32.dp))
+                    }
+                }
             }
-            val uiState by movieViewModel.uiState.collectAsState()
+        }
+    ){ padding ->
+        Column(modifier = Modifier.padding(padding)) {
+                        val uiState by movieViewModel.uiState.collectAsState()
             val loading by movieViewModel.loading.collectAsState()
             LaunchedEffect(movieId) {
                 movieViewModel.getMovieReviews(movieId)
             }
             val reviews = uiState.reviews
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Reviews", style = MaterialTheme.typography.headlineMedium)
+            Column {
 
                 Spacer(modifier = Modifier.height(8.dp))
 

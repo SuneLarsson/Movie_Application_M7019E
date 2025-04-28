@@ -48,24 +48,24 @@ fun MovieNavHost(
     } ?: MovieScreen.Main
 
     Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(35.dp) // Optional: Add padding to position the icon
-            ) {
-                if (navController.previousBackStackEntry != null) {
-                    IconButton(
-                        onClick = { navController.navigateUp() },
-                        modifier = Modifier.align(Alignment.TopEnd) // Align the back button to the top right
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier.size(32.dp))
-                    }
-                }
-            }
-        }
+//        topBar = {
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(35.dp) // Optional: Add padding to position the icon
+//            ) {
+//                if (navController.previousBackStackEntry != null) {
+//                    IconButton(
+//                        onClick = { navController.navigateUp() },
+//                        modifier = Modifier.align(Alignment.TopEnd) // Align the back button to the top right
+//                    ) {
+//                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
+//                            contentDescription = "Back",
+//                            modifier = Modifier.size(32.dp))
+//                    }
+//                }
+//            }
+//        }
     ) { innerPadding ->
         NavHost(
             navController = navController,

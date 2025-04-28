@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -67,10 +68,28 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.Abs
 fun DetailScreen(
     navController: NavController,
     movieViewModel: MovieViewModel) {
-    Scaffold { innerPadding ->
+    Scaffold (
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(35.dp)
+            ) {
+                if (navController.previousBackStackEntry != null) {
+                    IconButton(
+                        onClick = { navController.navigateUp() },
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier.size(32.dp))
+                    }
+                }
+            }
+        }
+    ){ innerPadding ->
         Column(modifier = Modifier
-            .padding(innerPadding)
-            .padding(16.dp)) {
+            ) {
             DetailsCard(
                 modifier = Modifier.padding(innerPadding),
                 navController = navController,
