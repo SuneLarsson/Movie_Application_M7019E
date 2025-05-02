@@ -124,8 +124,7 @@ fun DetailScreen(
             )
         }
     ){ innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)) {
+        Column {
             DetailsCard(
                 modifier = Modifier.padding(innerPadding),
                 navController = navController,
@@ -181,33 +180,25 @@ fun HomepageHyperlink(homepageUrl: String) {
     val context = LocalContext.current
 
     Text(
-        text = homepageUrl,
+        text = "Visit Movie",
         color = Color(0xFF1E88E5),
         textDecoration = TextDecoration.Underline,
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.clickable {
-            val intent = Intent(Intent.ACTION_VIEW, homepageUrl.toUri())
-            context.startActivity(intent)
+
+            if (homepageUrl.isNotBlank()) {
+                val intent = Intent(Intent.ACTION_VIEW, homepageUrl.toUri())
+                context.startActivity(intent)
+            }
         }
     )
 }
 
 
 
+
 @Composable
 fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, movieViewModel: MovieViewModel, movie: Movie, context: Context){
-//    val uiState = movieViewModel.uiState.collectAsState()
-//    val movieId = uiState.value.movieId
-//    movieViewModel.setMovieById(movieId)
-//    val movie = movieViewModel.getMovieById(movieId) ?: return
-//    val isFavorited = remember { mutableStateOf(false) }
-//
-//    LaunchedEffect(movie.id) {
-//        val db = MovieDatabase.getDatabase(context)
-//        val dao = db.movieDao()
-//        isFavorited.value = dao.getMovieById(movie.id) != null
-//    }
-
 
     Column(modifier = modifier) {
         Row {
@@ -219,8 +210,8 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                         contentDescription = movie.title,
                         modifier = Modifier
                             .width(92.dp)
-                            .height(138.dp),
-
+                            .height(138.dp)
+                            .padding(horizontal = 8.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -240,12 +231,9 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     movie.genres?.let { MovieGenresList(genres = it) }
-
-
-
                 }
             }
-        Row (modifier = modifier.align(Alignment.CenterHorizontally)){
+        Row (modifier = Modifier.align(Alignment.CenterHorizontally)){
             Button(
                 onClick = { navController.navigate("${MovieScreen.Third.name}/${movie.id}") },
                 modifier = Modifier.size(92.dp, 35.dp)
@@ -264,27 +252,13 @@ fun DetailsCard(modifier: Modifier = Modifier, navController: NavController, mov
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(vertical = 0.dp))
             }
-//            FavoriteToggle(
-//                movie = movie,
-//                isFavorited = isFavorited.value,
-//                onToggleFavorite = {
-//                    saveToFavorite(context, movie)
-//                    isFavorited.value = !isFavorited.value
-//                }
-//            )
 
-//            Button(
-//                onClick = { movie.let { saveToFavorite(context, it)} },
-//                modifier = Modifier.size(92.dp, 35.dp)
-//                    .padding(vertical = 2.dp)
-//            ) {                 Text("Favorite",
-//                style = MaterialTheme.typography.bodySmall,
-//                modifier = Modifier.padding(vertical = 0.dp))}
         }
 
         movie.overview?.let {
             Text(text = it,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
         Spacer(modifier = Modifier.padding(8.dp))

@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,18 +33,36 @@ import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThirdScreen(
     navController: NavController,
     movieId: Long,
     movieViewModel: MovieViewModel) {
-    Scaffold { padding ->
-        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-            Text("Third Screen")
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { navController.popBackStack() }) {
-                Text("Go Back")
-            }
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Reviews")},
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+                navigationIcon = {
+                    if(navController.previousBackStackEntry != null) {
+                        IconButton(
+                            onClick = { navController.navigateUp() },
+                        ){
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier.size(32.dp))
+                        }
+                    }
+                })
+
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+
             val uiState by movieViewModel.uiState.collectAsState()
             val loading by movieViewModel.loading.collectAsState()
             LaunchedEffect(movieId) {
@@ -50,9 +70,6 @@ fun ThirdScreen(
             }
             val reviews = uiState.reviews
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Reviews", style = MaterialTheme.typography.headlineMedium)
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 if (loading) {
                     CircularProgressIndicator()
@@ -70,6 +87,8 @@ fun ThirdScreen(
         }
     }
 }
+
+
 @Composable
 fun ReviewItem(review: Review) {
     var expanded by remember { mutableStateOf(false) }

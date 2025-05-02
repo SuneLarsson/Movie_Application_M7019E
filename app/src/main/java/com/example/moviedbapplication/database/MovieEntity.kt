@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.moviedbapplication.models.Genre
 import androidx.room.TypeConverters
-import com.example.moviedbapplication.utils.Converters
 
 @Entity(tableName = "movies")
 data class MovieEntity(

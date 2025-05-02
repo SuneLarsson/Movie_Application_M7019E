@@ -48,44 +48,44 @@ fun MovieNavHost(
         currentRoute?.startsWith(route.name) == true
     } ?: MovieScreen.Main
 
-    Scaffold { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = MovieScreen.Main.name,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(MovieScreen.Main.name) {
-                MainScreen(movieViewModel, navController)
-            }
-            composable(
-                "${MovieScreen.Details.name}/{movieId}",
-                arguments = listOf(navArgument("movieId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val movieId = backStackEntry.arguments?.getLong("movieId")
-                movieViewModel.setMovieId(movieId!!)
 
-                if (movieId != null) {
-                    DetailScreen(
-                        navController,
-                        movieViewModel = movieViewModel
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "No movie found.")
-                    }
+    NavHost(
+        navController = navController,
+        startDestination = MovieScreen.Main.name,
+        modifier = Modifier
+    ) {
+        composable(MovieScreen.Main.name) {
+            MainScreen(movieViewModel, navController)
+        }
+        composable(
+            "${MovieScreen.Details.name}/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getLong("movieId")
+            movieViewModel.setMovieId(movieId!!)
+
+            if (movieId != null) {
+                DetailScreen(
+                    navController,
+                    movieViewModel = movieViewModel
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "No movie found.")
                 }
             }
+        }
 
-            composable(
-                "${MovieScreen.Third.name}/{movieId}",
-                arguments = listOf(navArgument("movieId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val movieId = backStackEntry.arguments?.getLong("movieId") ?: return@composable
-                ThirdScreen(navController = navController, movieViewModel = movieViewModel, movieId = movieId)
-            }
+        composable(
+            "${MovieScreen.Third.name}/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getLong("movieId") ?: return@composable
+            ThirdScreen(navController = navController, movieViewModel = movieViewModel, movieId = movieId)
         }
     }
+
 }
