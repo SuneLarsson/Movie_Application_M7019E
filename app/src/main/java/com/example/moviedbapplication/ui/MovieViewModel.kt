@@ -32,11 +32,12 @@ class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
 //    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
 //    val reviews: StateFlow<List<Review>> = _reviews
 
-    fun getFavoriteMovies() {
+    fun getFavoriteMovies(movieType: String) {
         viewModelScope.launch {
             movieDao.getAllMovies().collect { entityList ->
                 val movieList = entityList.map { it.toMovie() }
                 _uiState.value = _uiState.value.copy(movies = movieList)
+                setCategory(movieType)
             }
         }
     }

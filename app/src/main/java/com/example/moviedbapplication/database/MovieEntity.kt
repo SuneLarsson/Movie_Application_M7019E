@@ -16,13 +16,11 @@ data class MovieEntity(
     val releaseDate: String?,
     val overview: String?,
 
-    @TypeConverters(Converters::class)
     val genreIds: List<Int>? = emptyList(),
 
     val homepage: String? = null,
     val imdbId: String? = null,
 
-    @TypeConverters(Converters::class)
     val genres: List<Genre>? = emptyList()
 )
 

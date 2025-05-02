@@ -35,11 +35,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.moviedbapplication.database.MovieDao
+import com.example.moviedbapplication.database.MovieDatabase
+import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.ui.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
+
+private lateinit var movieDatabase: MovieDatabase
+private lateinit var movieDao: MovieDao
 
 @Composable
 fun MainScreen(movieViewModel: MovieViewModel, navController: NavController) {
@@ -257,16 +263,20 @@ fun CategoryDropdownMenu(
         }
 
         if (selectedCategory != "favorites") {
+
             DropdownMenuItem(
                 text = { Text("Favorites") },
                 onClick = {
-                    fetchMovies(movieViewModel = movieViewModel, movieType = "favorites")
+                    fetchFavoriteMovies(movieViewModel = movieViewModel, movieType = "favorites")
+//                    fetchMovies(movieViewModel = movieViewModel, movieType = "favorites")
                     onDismissRequest()
                 }
             )
         }
     }
 }
+
+
 
 
 
@@ -419,3 +429,6 @@ fun fetchMovies(movieType: String, movieViewModel: MovieViewModel) {
     movieViewModel.getMovies(movieType = movieType)
 }
 
+fun fetchFavoriteMovies(movieType: String, movieViewModel: MovieViewModel) {
+    movieViewModel.getFavoriteMovies(movieType = movieType)
+}

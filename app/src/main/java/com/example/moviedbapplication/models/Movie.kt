@@ -1,5 +1,6 @@
 package com.example.moviedbapplication.models
 
+import com.example.moviedbapplication.database.MovieEntity
 import com.google.gson.annotations.SerializedName
 
 data class Movie(
@@ -25,7 +26,7 @@ data class Movie(
     val genreIds: List<Int>? = emptyList(),
 
     @SerializedName("homepage")
-    val homepage: String? = null,  // not available in all endpoints
+    val homepage: String? = null,
 
     @SerializedName("imdb_id")
     val imdbId: String? = null,
@@ -33,7 +34,22 @@ data class Movie(
     @SerializedName("genres")
     val genres: List<Genre>? = emptyList()
 
-)
+) {
+    fun toMovieEntity(): MovieEntity {
+        return MovieEntity(
+            id = this.id,
+            title = this.title,
+            posterPath = this.posterPath,
+            backdropPath = this.backdropPath,
+            releaseDate = this.releaseDate,
+            overview = this.overview,
+            genreIds = this.genreIds,
+            homepage = this.homepage,
+            imdbId = this.imdbId,
+            genres = this.genres
+        )
+    }
+}
 
 data class Genre(
     @SerializedName("id")
@@ -41,4 +57,3 @@ data class Genre(
     @SerializedName("name")
     val name: String
 )
-

@@ -3,6 +3,7 @@ package com.example.moviedbapplication.ui.navigation
 
 import android.os.Bundle
 import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -47,26 +48,7 @@ fun MovieNavHost(
         currentRoute?.startsWith(route.name) == true
     } ?: MovieScreen.Main
 
-    Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(35.dp) // Optional: Add padding to position the icon
-            ) {
-                if (navController.previousBackStackEntry != null) {
-                    IconButton(
-                        onClick = { navController.navigateUp() },
-                        modifier = Modifier.align(Alignment.TopEnd) // Align the back button to the top right
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier.size(32.dp))
-                    }
-                }
-            }
-        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = MovieScreen.Main.name,
