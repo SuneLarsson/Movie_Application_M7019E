@@ -38,7 +38,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.MovieDatabase
-import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie

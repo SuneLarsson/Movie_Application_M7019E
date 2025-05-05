@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moviedbapplication.api.RetrofitInstance
 import com.example.moviedbapplication.database.MovieDao
-import com.example.moviedbapplication.database.MovieEntity
+import com.example.moviedbapplication.database.FavoriteMovieEntity
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.models.Movie
@@ -37,7 +37,7 @@ class MovieViewModel (
 
     fun getFavoriteMovies(movieType: String) {
         viewModelScope.launch {
-            movieDao.getAllMovies().collect { entityList ->
+            movieDao.getAllFavoritesMovies().collect { entityList ->
                 val movieList = entityList.map { it.toMovie() }
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -64,7 +64,7 @@ class MovieViewModel (
     }
 
 
-    fun Movie.toEntity(): MovieEntity = MovieEntity(
+    fun Movie.toEntity(): FavoriteMovieEntity = FavoriteMovieEntity(
         id = id,
         title = title,
         posterPath = posterPath,
@@ -76,7 +76,7 @@ class MovieViewModel (
         imdbId = imdbId
     )
 
-    fun MovieEntity.toMovie(): Movie = Movie(
+    fun FavoriteMovieEntity.toMovie(): Movie = Movie(
         id = id,
         title = title,
         posterPath = posterPath,

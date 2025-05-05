@@ -89,7 +89,7 @@ fun DetailScreen(
     LaunchedEffect(movie.id) {
         val db = MovieDatabase.getDatabase(context)
         val dao = db.movieDao()
-        isFavorited.value = dao.getMovieById(movie.id) != null
+        isFavorited.value = dao.getFavoriteMovieById(movie.id) != null
     }
     Scaffold (
         topBar = {
@@ -164,7 +164,7 @@ fun saveToFavorite(context: Context, movie: Movie) {
     val movieDao = movieDatabase.movieDao()
 
     CoroutineScope(Dispatchers.IO).launch {
-        val existingMovie = movieDao.getMovieById(movie.id)
+        val existingMovie = movieDao.getFavoriteMovieById(movie.id)
         if (existingMovie != null) {
             movieDao.delete(existingMovie)
         } else {

@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.moviedbapplication.models.Genre
 
-@Entity(tableName = "movies")
-data class MovieEntity(
+@Entity(tableName = "favorites")
+data class FavoriteMovieEntity(
     @PrimaryKey
     val id: Long,
     val title: String,
@@ -20,4 +20,5 @@ data class MovieEntity(
     val imdbId: String? = null,
 
     val genres: List<Genre>? = emptyList()
+
 )
