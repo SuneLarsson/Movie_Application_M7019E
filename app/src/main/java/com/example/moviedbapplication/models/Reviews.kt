@@ -14,8 +14,8 @@ data class Review(
 data class AuthorDetails(
     val name: String,
     val username: String,
-    val avatar_path: String?, // Nullable
-    val rating: Double?       // Nullable (sometimes it's missing)
+    val avatar_path: String?, 
+    val rating: Double?
 )
 
 data class ReviewResponse(

@@ -63,7 +63,7 @@ fun MainScreen(movieViewModel: MovieViewModel, navController: NavController) {
 enum class Title {
     Popular,
     Top,
-    Favourites
+    Favorites
 }
 
 
@@ -270,7 +270,6 @@ fun CategoryDropdownMenu(
                 text = { Text("Favorites") },
                 onClick = {
                     fetchFavoriteMovies(movieViewModel = movieViewModel, movieType = "favorites")
-//                    fetchMovies(movieViewModel = movieViewModel, movieType = "favorites")
                     onDismissRequest()
                 }
             )
@@ -292,7 +291,7 @@ fun MovieCategoryTitle(movieViewModel: MovieViewModel) {
     val title = when (category) {
         "popular" -> Title.Popular
         "top_rated" -> Title.Top
-        "favorites" -> Title.Favourites
+        "favorites" -> Title.Favorites
         else -> null
     }
 
