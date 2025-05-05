@@ -3,7 +3,6 @@ package com.example.moviedbapplication.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.moviedbapplication.models.Genre
-import androidx.room.TypeConverters
 
 @Entity(tableName = "movies")
 data class MovieEntity(
@@ -22,4 +21,3 @@ data class MovieEntity(
 
     val genres: List<Genre>? = emptyList()
 )
-

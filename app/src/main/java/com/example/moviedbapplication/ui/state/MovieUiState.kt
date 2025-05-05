@@ -1,9 +1,8 @@
-package com.example.moviedbapplication.ui
+package com.example.moviedbapplication.ui.state
 
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.models.Review
 import com.example.moviedbapplication.models.Video
-
 
 data class MovieUiState(
     val movieId: Long = 0L,

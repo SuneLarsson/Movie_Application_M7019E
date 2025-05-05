@@ -29,7 +29,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.moviedbapplication.models.Review
 import com.example.moviedbapplication.models.ReviewResponse
-import com.example.moviedbapplication.ui.MovieViewModel
+import com.example.moviedbapplication.viewmodel.MovieViewModel
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 
 

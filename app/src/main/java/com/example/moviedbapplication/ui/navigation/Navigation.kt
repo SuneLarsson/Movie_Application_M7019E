@@ -27,7 +27,7 @@ import androidx.navigation.navArgument
 import com.example.moviedbapplication.ui.screens.DetailScreen
 import com.example.moviedbapplication.ui.screens.MainScreen
 import com.example.moviedbapplication.ui.screens.ThirdScreen
-import com.example.moviedbapplication.ui.MovieViewModel
+import com.example.moviedbapplication.viewmodel.MovieViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 

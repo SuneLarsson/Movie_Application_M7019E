@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.moviedbapplication.database.MovieDatabase
 import com.example.moviedbapplication.ui.navigation.MovieNavHost
+import com.example.moviedbapplication.viewmodel.MovieViewModel
 
 
 @Composable
@@ -24,7 +25,7 @@ fun MovieApp() {
     val uiState by movieViewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.movies.isEmpty()) {
-        if (uiState.movies.isEmpty()) {
+        if (uiState.movies.isEmpty() && uiState.selectedCategory == null) {
             movieViewModel.getMovies(movieType = "popular")
             movieViewModel.setCategory("popular")
         }

@@ -1,22 +1,21 @@
-package com.example.moviedbapplication.ui
+package com.example.moviedbapplication.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moviedbapplication.api.RetrofitInstance
+import com.example.moviedbapplication.database.MovieDao
+import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie
+import com.example.moviedbapplication.models.Video
+import com.example.moviedbapplication.ui.state.MovieUiState
 import com.example.moviedbapplication.utils.SECRETS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import com.example.moviedbapplication.database.MovieDao
-import com.example.moviedbapplication.database.MovieEntity
-import com.example.moviedbapplication.models.Video
-
 
 class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
 
@@ -36,7 +35,13 @@ class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
         viewModelScope.launch {
             movieDao.getAllMovies().collect { entityList ->
                 val movieList = entityList.map { it.toMovie() }
-                _uiState.value = _uiState.value.copy(movies = movieList)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        movies = movieList,
+                        latestMovies = movieList,
+                        movieType = movieType
+                    )
+                }
                 setCategory(movieType)
             }
         }

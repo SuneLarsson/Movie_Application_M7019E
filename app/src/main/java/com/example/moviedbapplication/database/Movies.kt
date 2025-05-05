@@ -67,7 +67,7 @@ class Movies {
             releaseDate = "2025-03-27",
             overview = "By day, they're invisible—valets, hostesses, and bartenders at a luxury hotel. By night, they're the Carjackers, a crew of skilled drivers who track and rob wealthy clients on the road. As they plan their ultimate heist, the hotel director hires a ruthless hitman, to stop them at all costs. With danger closing in, can Nora, Zoe, Steve, and Prestance pull off their biggest score yet?",
             genreIds = listOf(28, 12),
-            homepage =  "https://www.amazon.com/gp/video/detail/B0DCYJL1GN",
+            homepage = "https://www.amazon.com/gp/video/detail/B0DCYJL1GN",
             imdbId = "tt35683795"
         ),
         Movie(

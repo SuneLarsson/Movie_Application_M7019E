@@ -53,7 +53,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.models.Genre
-import com.example.moviedbapplication.ui.MovieViewModel
+import com.example.moviedbapplication.viewmodel.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer

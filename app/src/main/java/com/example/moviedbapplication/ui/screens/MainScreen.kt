@@ -42,7 +42,7 @@ import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.ui.navigation.MovieScreen
 import com.example.moviedbapplication.database.Movies
 import com.example.moviedbapplication.models.Movie
-import com.example.moviedbapplication.ui.MovieViewModel
+import com.example.moviedbapplication.viewmodel.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
 
 private lateinit var movieDatabase: MovieDatabase
