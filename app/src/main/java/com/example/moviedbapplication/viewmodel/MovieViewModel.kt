@@ -7,6 +7,7 @@ import com.example.moviedbapplication.api.RetrofitInstance
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.MovieEntity
 import com.example.moviedbapplication.database.Movies
+import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.models.Video
 import com.example.moviedbapplication.ui.state.MovieUiState
@@ -17,7 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
+class MovieViewModel (
+    private val movieDao: MovieDao,
+    private val userPreferencesRepository: UserPreferencesRepository
+) : ViewModel(){
 
 
 
@@ -185,6 +189,18 @@ class MovieViewModel (private val movieDao: MovieDao) : ViewModel(){
 
     fun setCategory(category: String) {
         _uiState.value = _uiState.value.copy(selectedCategory = category)
+        viewModelScope.launch {
+            userPreferencesRepository.saveSelectedList(category)
+        }
+    }
+
+    fun loadSelectedCategory() {
+        viewModelScope.launch {
+            userPreferencesRepository.selectedListFlow.collect { saved ->
+                getMovies(movieType = saved)
+                setCategory(saved)
+            }
+        }
     }
 
     fun getCategory() : String? {

@@ -67,6 +67,8 @@ dependencies {
     implementation (libs.core)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.common.jvm)
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
     testImplementation(libs.junit)
@@ -76,6 +78,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
     // WorkManager dependency
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 

@@ -1,10 +1,11 @@
-package com.example.moviedbapplication.utils;
+package com.example.moviedbapplication.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+
 class ConnectivityObserver(context: Context) {
     private val cm = context.getSystemService(ConnectivityManager::class.java)
     private val _isOnline = MutableLiveData<Boolean>(false)
@@ -23,4 +24,3 @@ class ConnectivityObserver(context: Context) {
         cm.unregisterNetworkCallback(callback)
     }
 }
-

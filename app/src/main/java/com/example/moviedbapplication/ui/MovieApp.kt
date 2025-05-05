@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.moviedbapplication.database.MovieDatabase
+import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.ui.navigation.MovieNavHost
 import com.example.moviedbapplication.viewmodel.MovieViewModel
 
@@ -20,16 +21,21 @@ fun MovieApp() {
     val movieDao = remember {
         MovieDatabase.getDatabase(context).movieDao()
     }
-    val movieViewModel = remember { MovieViewModel(movieDao) }
+    val movieViewModel = remember { MovieViewModel(movieDao, UserPreferencesRepository(context)).apply{
+        loadSelectedCategory()
+    } }
 
+//    movieViewModel.loadSelectedCategory()
+//
+//    val uiState by movieViewModel.uiState.collectAsState()
+//
+//    LaunchedEffect(uiState.movies.isEmpty()) {
+//        if (uiState.movies.isEmpty() && uiState.selectedCategory == null) {
+//            movieViewModel.getMovies(movieType = "popular")
+//            movieViewModel.setCategory("popular")
+//        }
+//    }
     val uiState by movieViewModel.uiState.collectAsState()
-
-    LaunchedEffect(uiState.movies.isEmpty()) {
-        if (uiState.movies.isEmpty() && uiState.selectedCategory == null) {
-            movieViewModel.getMovies(movieType = "popular")
-            movieViewModel.setCategory("popular")
-        }
-    }
     val navController = rememberNavController()
     MovieNavHost(navController = navController, movieViewModel = movieViewModel)
 
