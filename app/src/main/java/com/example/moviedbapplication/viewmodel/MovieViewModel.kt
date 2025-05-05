@@ -15,6 +15,7 @@ import com.example.moviedbapplication.utils.SECRETS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -47,6 +48,15 @@ class MovieViewModel (
                     )
                 }
                 setCategory(movieType)
+            }
+        }
+    }
+
+    fun handleOfflineNoCache() {
+        viewModelScope.launch {
+            val cached = movieDao.getAllFavoritesMovies().first()
+            if (cached.isEmpty()) {
+                _uiState.update { it.copy(showNoConnection = true) }
             }
         }
     }

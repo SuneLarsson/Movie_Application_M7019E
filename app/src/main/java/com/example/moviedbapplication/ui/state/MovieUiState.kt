@@ -14,5 +14,6 @@ data class MovieUiState(
     val selectedCategory: String? = null,
     val loading: Boolean = false,
     val reviews: List<Review> = emptyList(),
-    val videos: List<Video> = emptyList()
+    val videos: List<Video> = emptyList(),
+    val showNoConnection: Boolean = false
 )

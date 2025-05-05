@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.common.jvm)
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.0")
 
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)

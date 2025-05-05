@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -18,8 +17,7 @@ import com.example.moviedbapplication.network.ConnectivityObserver
 import com.example.moviedbapplication.network.MovieSyncWorker
 import com.example.moviedbapplication.ui.navigation.MovieNavHost
 import com.example.moviedbapplication.viewmodel.MovieViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.example.moviedbapplication.ui.screens.NoConnectionScreen
 
 
 @Composable
@@ -61,7 +59,18 @@ fun MovieApp() {
             WorkManager.getInstance(context).enqueue(workRequest)
         }
     }
+
     val navController = rememberNavController()
-    MovieNavHost(navController = navController, movieViewModel = movieViewModel)
+    if (uiState.showNoConnection) {
+        NoConnectionScreen(
+            onRetry = {
+                movieViewModel.loadSelectedCategory() // retry logic
+            }
+        )
+    } else {
+        MovieNavHost(navController = navController, movieViewModel = movieViewModel)
+    }
+
+//    MovieNavHost(navController = navController, movieViewModel = movieViewModel)
 
 }

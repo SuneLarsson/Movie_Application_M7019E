@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Movie db Application</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="no_connection">No Connection</string>
+    <string name="please_check_your_network_and_try_again">Please check your network and try again.</string>
+    <string name="retry">Retry</string>
 </resources>
