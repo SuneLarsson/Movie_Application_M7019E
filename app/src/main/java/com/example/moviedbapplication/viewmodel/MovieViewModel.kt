@@ -225,7 +225,12 @@ class MovieViewModel (
                 it.copy(movies = _uiState.value.latestMovies)
             }
             return
-        } else {
+        }
+            else if(movieType == "favorites"){
+                getFavoriteMovies(movieType)
+                return
+            }
+         else {
             viewModelScope.launch {
                 try {
                     Log.d("MovieViewModel", "API call started with movieType: $movieType")
