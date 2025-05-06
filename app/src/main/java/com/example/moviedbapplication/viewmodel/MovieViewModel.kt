@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moviedbapplication.api.RetrofitInstance
+import com.example.moviedbapplication.database.CachedMovieEntity
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.FavoriteMovieEntity
 import com.example.moviedbapplication.database.Movies
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,8 +36,18 @@ class MovieViewModel (
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-//    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
-//    val reviews: StateFlow<List<Review>> = _reviews
+    private val _selectedList = MutableStateFlow("top_rated")
+    val selectedList: StateFlow<String> = _selectedList
+
+    private var lastFetchedMovieType: String? = null
+
+    init {
+        viewModelScope.launch {
+            userPreferencesRepository.selectedListFlow.collect {
+                _selectedList.value = it
+            }
+        }
+    }
 
     private var favoriteMoviesJob: Job? = null
     fun getFavoriteMovies() {
@@ -104,6 +116,17 @@ class MovieViewModel (
         imdbId = imdbId
     )
 
+    fun CachedMovieEntity.toMovie(): Movie = Movie(
+            id = id,
+            title = title,
+            posterPath = posterPath,
+            backdropPath = backdropPath,
+            releaseDate = releaseDate,
+            overview = overview,
+            genreIds = genreIds
+    )
+
+
 
 
 
@@ -145,8 +168,8 @@ class MovieViewModel (
             try {
                 _uiState.update { currentState ->
                     currentState.copy(
-                        loading = true,  // Set loading to true while fetching movie
-                        movie = null     // Clear the previous movie data
+                        loading = true,
+                        movie = null
                     )
                 }
 
@@ -161,14 +184,14 @@ class MovieViewModel (
                     _uiState.update { currentState ->
                         currentState.copy(
                             movie = response.body(),
-                            loading = false // Set loading to false after receiving the movie data
+                            loading = false
                         )
                     }
                 } else {
                     _uiState.update { currentState ->
                         currentState.copy(
                             movie = null,
-                            loading = false // Set loading to false after failure
+                            loading = false
                         )
                     }
                 }
@@ -178,7 +201,7 @@ class MovieViewModel (
                 _uiState.update { currentState ->
                     currentState.copy(
                         movie = null,
-                        loading = false // Set loading to false after failure
+                        loading = false
                     )
                 }
             }
@@ -204,19 +227,26 @@ class MovieViewModel (
     }
 
     fun setCategory(category: String) {
-        _uiState.value = _uiState.value.copy(selectedCategory = category)
-        viewModelScope.launch {
-            userPreferencesRepository.saveSelectedList(category)
+        if (_uiState.value.selectedCategory != category) {
+            Log.d("MovieViewModel", "Setting category: $category")
+            _uiState.value = _uiState.value.copy(selectedCategory = category)
+            viewModelScope.launch {
+                userPreferencesRepository.saveSelectedList(category)
+            }
         }
     }
 
     fun loadSelectedCategory() {
+        Log.d("MovieViewModel", "Loading selected category")
         viewModelScope.launch {
-            userPreferencesRepository.selectedListFlow.collect { savedCategory ->
-                setCategory(savedCategory)
-                getMovies(movieType = savedCategory)
-
-            }
+            userPreferencesRepository.selectedListFlow
+                .distinctUntilChanged()
+                .collect { saved ->
+                    if (saved != lastFetchedMovieType) {
+                        getMovies(movieType = saved)
+                        setCategory(saved)
+                    }
+                }
         }
     }
 
@@ -225,37 +255,107 @@ class MovieViewModel (
     }
 
 
+    fun getCachedMovies() {
+        Log.d("MovieViewModel", "Getting cached movies")
+        viewModelScope.launch {
+            movieDao.getAllCachedMovies().collect { entityList ->
+                val movieList = entityList.map { it.toMovie() }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        movies = movieList,
+                    )
+                }
+            }
+        }
+    }
+
+    fun setCachedMovies(movies: List<Movie>) {
+        Log.d("MovieViewModel", "Setting cached movies: $movies")
+        viewModelScope.launch {
+            val entities = movies.mapIndexed{ index, movie -> movie.toCachedMovieEntity(index) }
+            movieDao.clearMovies()
+            movieDao.insertAll(entities)
+        }
+    }
+
     fun getMovies(apiKey: String = SECRETS.API_KEY, movieType: String ) {
 
-        if (movieType != "favorites") {
+        if(movieType == "favorites") {
+            setCategory("favorites")
+            getFavoriteMovies()
+            return
+        } else {
             favoriteMoviesJob?.cancel()
             favoriteMoviesJob = null
         }
 
-        // 1) If it’s the exact same category, just re-use cached `latestMovies`
-        if (_uiState.value.movieType == movieType && movieType != "favorites") {
-            _uiState.update { it.copy(movies = it.latestMovies) }
+        if (lastFetchedMovieType == movieType) {
+            Log.d("MovieViewModel", "Already fetched $movieType")
             return
         }
 
-        // 2) If they picked “favorites”, go to Room—but only here
-        if (movieType == "favorites") {
-            setCategory("favorites")
-            getFavoriteMovies()
+        if (_uiState.value.movieType == movieType ) {
+            Log.d("MovieViewModel", "Get Cache: $movieType")
+            getCachedMovies()
             return
-        }
 
-        // 3) Otherwise fetch from API
-        viewModelScope.launch {
-            val resp = RetrofitInstance.api.getMovies(movieType, "Bearer $apiKey")
-            if (resp.isSuccessful) {
-                val results = resp.body()?.results ?: emptyList()
-                _uiState.update {
-                    it.copy(movies = results, latestMovies = results, movieType = movieType)
+        } else {
+            viewModelScope.launch {
+                try {
+                    Log.d("MovieViewModel", "API call started with movieType: $movieType")
+
+                    val response = RetrofitInstance.api.getMovies(
+                        movieType = movieType,
+                        authHeader = "Bearer ${SECRETS.API_KEY}"
+
+                    )
+
+
+                    if (response.isSuccessful) {
+
+                        Log.d(
+                            "MovieViewModel",
+                            "API call successful. Number of movies: ${response.body()?.results?.size}"
+                        )
+
+                        val movies = response.body()?.results ?: emptyList<Movie>()
+
+
+                        setCachedMovies(movies)
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                movies = movies,
+                                latestMovies = movies,
+                                movieType = movieType
+                            )
+                        }
+                        setCategory(movieType)
+                        lastFetchedMovieType = movieType
+                    } else {
+
+                        Log.e(
+                            "MovieViewModel",
+                            "API call failed with status code: ${response.code()}"
+                        )
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                movies = emptyList(),
+                                movieType = movieType
+
+                            )
+                        }
+                        setCategory(movieType)
+                    }
+                } catch (e: Exception) {
+                    Log.e("MovieViewModel", "Error occurred during API call", e)
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            movies = emptyList(),
+                            movieType = movieType
+                        )
+                    }
+                    setCategory(movieType)
                 }
-                setCategory(movieType)
-            } else {
-                _uiState.update { it.copy(movies = emptyList()) }
             }
         }
     }

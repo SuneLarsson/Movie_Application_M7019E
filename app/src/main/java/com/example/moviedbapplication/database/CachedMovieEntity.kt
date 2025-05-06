@@ -12,5 +12,6 @@ data class CachedMovieEntity(
     val releaseDate: String?,
     val overview: String?,
 
-    val genreIds: List<Int>? = emptyList()
+    val genreIds: List<Int>? = emptyList(),
+    val position: Int
 )

@@ -40,7 +40,7 @@ class MovieSyncWorker(
                 dao.clearMovies()
 
                 // 4. Insert the new list
-                val entities = movies.map { it.toCachedMovieEntity() }
+                val entities = movies.mapIndexed{ index, movie -> movie.toCachedMovieEntity(index) }
                 dao.insertAll(entities)
 
                 Log.d("MovieSyncWorker", "Synced ${entities.size} movies to Room")
@@ -56,17 +56,4 @@ class MovieSyncWorker(
         }
     }
 
-//    private fun Movie.toEntity(): FavoriteMovieEntity {
-//        return FavoriteMovieEntity(
-//            id = id,
-//            title = title,
-//            posterPath = posterPath,
-//            backdropPath = backdropPath,
-//            releaseDate = releaseDate,
-//            overview = overview,
-//            genreIds = genreIds ?: emptyList(),
-//            homepage = homepage,
-//            imdbId = imdbId
-//        )
-//    }
 }

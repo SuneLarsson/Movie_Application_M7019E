@@ -50,7 +50,7 @@ data class Movie(
             genres = this.genres
         )
     }
-    fun toCachedMovieEntity(): CachedMovieEntity {
+    fun toCachedMovieEntity(position: Int): CachedMovieEntity {
         return CachedMovieEntity(
             id = this.id,
             title = this.title,
@@ -58,7 +58,8 @@ data class Movie(
             backdropPath = this.backdropPath,
             releaseDate = this.releaseDate,
             overview = this.overview,
-            genreIds = this.genreIds
+            genreIds = this.genreIds,
+            position = position
         )
     }
 }

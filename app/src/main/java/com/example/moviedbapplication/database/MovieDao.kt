@@ -31,7 +31,7 @@ interface MovieDao {
     // =======================
     // 📦 Cached Movies (API list)
     // =======================
-    @Query("SELECT * FROM cached_movies")
+    @Query("SELECT * FROM cached_movies ORDER BY position ASC")
     fun getAllCachedMovies():  Flow<List<CachedMovieEntity>>
 
     @Query("SELECT * FROM cached_movies WHERE id = :id")
