@@ -6,7 +6,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.moviedbapplication.api.RetrofitInstance
 import com.example.moviedbapplication.database.MovieDatabase
-import com.example.moviedbapplication.database.FavoriteMovieEntity
 import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.utils.SECRETS

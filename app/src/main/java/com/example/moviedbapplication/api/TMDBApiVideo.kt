@@ -1,6 +1,5 @@
 package com.example.moviedbapplication.api
 
-import com.example.moviedbapplication.models.Video
 import com.example.moviedbapplication.models.VideoListResponse
 import retrofit2.Response
 import retrofit2.http.GET

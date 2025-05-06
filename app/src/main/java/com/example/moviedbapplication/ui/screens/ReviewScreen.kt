@@ -35,7 +35,8 @@ import com.example.moviedbapplication.viewmodel.MovieViewModel
 fun ThirdScreen(
     navController: NavController,
     movieId: Long,
-    movieViewModel: MovieViewModel) {
+    movieViewModel: MovieViewModel,
+    isOnline : Boolean) {
     Scaffold (
         topBar = {
             TopAppBar(

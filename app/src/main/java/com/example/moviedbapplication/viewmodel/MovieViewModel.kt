@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -36,18 +35,10 @@ class MovieViewModel (
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    private val _selectedList = MutableStateFlow("top_rated")
-    val selectedList: StateFlow<String> = _selectedList
 
     private var lastFetchedMovieType: String? = null
 
-    init {
-        viewModelScope.launch {
-            userPreferencesRepository.selectedListFlow.collect {
-                _selectedList.value = it
-            }
-        }
-    }
+
 
     private var favoriteMoviesJob: Job? = null
     fun getFavoriteMovies() {
@@ -70,39 +61,39 @@ class MovieViewModel (
         }
     }
 
-    fun handleOfflineNoCache() {
-        viewModelScope.launch {
-            val cached = movieDao.getAllFavoritesMovies().first()
-            if (cached.isEmpty()) {
-                _uiState.update { it.copy(showNoConnection = true) }
-            }
-        }
-    }
+//    fun handleOfflineNoCache() {
+//        viewModelScope.launch {
+//            val cached = movieDao.getAllFavoritesMovies().first()
+//            if (cached.isEmpty()) {
+//                _uiState.update { it.copy(showNoConnection = true) }
+//            }
+//        }
+//    }
+//
+//    fun addFavoriteMovie(movie: Movie) {
+//        viewModelScope.launch {
+//            movieDao.insert(movie.toEntity())
+//        }
+//    }
+//
+//    fun removeFavoriteMovie(movie: Movie) {
+//        viewModelScope.launch {
+//            movieDao.delete(movie.toEntity())
+//        }
+//    }
 
-    fun addFavoriteMovie(movie: Movie) {
-        viewModelScope.launch {
-            movieDao.insert(movie.toEntity())
-        }
-    }
 
-    fun removeFavoriteMovie(movie: Movie) {
-        viewModelScope.launch {
-            movieDao.delete(movie.toEntity())
-        }
-    }
-
-
-    fun Movie.toEntity(): FavoriteMovieEntity = FavoriteMovieEntity(
-        id = id,
-        title = title,
-        posterPath = posterPath,
-        backdropPath = backdropPath,
-        releaseDate = releaseDate,
-        overview = overview,
-        genreIds = genreIds ?: emptyList(),
-        homepage = homepage,
-        imdbId = imdbId
-    )
+//    fun Movie.toEntity(): FavoriteMovieEntity = FavoriteMovieEntity(
+//        id = id,
+//        title = title,
+//        posterPath = posterPath,
+//        backdropPath = backdropPath,
+//        releaseDate = releaseDate,
+//        overview = overview,
+//        genreIds = genreIds ?: emptyList(),
+//        homepage = homepage,
+//        imdbId = imdbId
+//    )
 
     fun FavoriteMovieEntity.toMovie(): Movie = Movie(
         id = id,
@@ -180,24 +171,48 @@ class MovieViewModel (
 
                 if (response.isSuccessful) {
                     Log.d("MovieViewModel", "API call successful. Movie data: ${response.body()}")
+                    if (response.body() != null) {
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                movie = response.body(),
+                                loading = false
+                            )
+                        }
+                    } else {
+                        setMovieByCacheId(movieId)
+                    }
 
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movie = response.body(),
-                            loading = false
-                        )
-                    }
                 } else {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movie = null,
-                            loading = false
-                        )
-                    }
+                    setMovieByCacheId(movieId)
                 }
 
             } catch (e: Exception) {
                 Log.e("MovieViewModel", "Error occurred during API call", e)
+                setMovieByCacheId(movieId)
+            }
+        }
+    }
+
+    fun setMovieByCacheId(movieId: Long) {
+        viewModelScope.launch {
+            val movie = movieDao.getCachedMovieById(movieId)
+            val favMovie  = movieDao.getFavoriteMovieById(movieId)
+
+            if (movie != null) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        movie = movie.toMovie(),
+                        loading = false
+                    )
+                }
+            } else if (favMovie != null) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        movie = favMovie.toMovie(),
+                        loading = false
+                    )
+                }
+            } else {
                 _uiState.update { currentState ->
                     currentState.copy(
                         movie = null,
@@ -210,7 +225,7 @@ class MovieViewModel (
 
 
 
-    fun getMovieById(movieId: Long) : Movie?{
+    fun getMovie() : Movie?{
         return _uiState.value.movie
     }
 
@@ -251,12 +266,12 @@ class MovieViewModel (
         }
     }
 
-    fun getCategory() : String? {
-        return _uiState.value.selectedCategory
-    }
+//    fun getCategory() : String? {
+//        return _uiState.value.selectedCategory
+//    }
 
 
-    fun getCachedMovies() {
+    fun getCachedMovies(movieType: String) {
         Log.d("MovieViewModel", "Getting cached movies")
         viewModelScope.launch {
             movieDao.getAllCachedMovies().collect { entityList ->
@@ -268,6 +283,7 @@ class MovieViewModel (
                 }
             }
         }
+        setCategory(movieType)
     }
 
 
@@ -281,7 +297,7 @@ class MovieViewModel (
         }
     }
 
-    fun getMovies(apiKey: String = SECRETS.API_KEY, movieType: String ) {
+    fun getMovies(movieType: String ) {
 
         if(movieType == "favorites") {
             setCategory("favorites")
@@ -292,14 +308,9 @@ class MovieViewModel (
             favoriteMoviesJob = null
         }
 
-//        if (lastFetchedMovieType == movieType) {
-//            Log.d("MovieViewModel", "Already fetched $movieType")
-//            return
-//        }
-
         if (lastFetchedMovieType == movieType) {
             Log.d("MovieViewModel", "Get Cache: $movieType")
-            getCachedMovies()
+            getCachedMovies(movieType)
             return
 
         } else {
@@ -433,11 +444,11 @@ class MovieViewModel (
         }
     }
 
-    fun resetMovie() {
-        _uiState.update { currentState ->
-            currentState.copy(movie = null, loading = false)
-        }
-    }
+//    fun resetMovie() {
+//        _uiState.update { currentState ->
+//            currentState.copy(movie = null, loading = false)
+//        }
+//    }
 
 
 

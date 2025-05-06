@@ -48,13 +48,14 @@ private lateinit var movieDatabase: MovieDatabase
 private lateinit var movieDao: MovieDao
 
 @Composable
-fun MainScreen(movieViewModel: MovieViewModel, navController: NavController) {
+fun MainScreen(movieViewModel: MovieViewModel, navController: NavController, isOnline : Boolean) {
     Scaffold { innerPadding ->
 
         MovieDBApp(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
-            movieViewModel = movieViewModel
+            movieViewModel = movieViewModel,
+            isOnline = isOnline
         )
     }
 }
@@ -70,7 +71,8 @@ enum class Title {
 fun MovieDBApp(
     modifier: Modifier = Modifier,
     navController: NavController,
-    movieViewModel: MovieViewModel
+    movieViewModel: MovieViewModel,
+    isOnline : Boolean
 ) {
 
     val uiState by movieViewModel.uiState.collectAsState()
@@ -104,21 +106,22 @@ fun MovieDBApp(
         )
 
 
-
-
         if (!isGrid) {
             MovieList(
                 movies = movies,
                 modifier = modifier,
                 navController = navController,
 
-            )
+                )
         } else {
             MovieGrid(
                 sectionedMovies = Movies().createSectionedMoviesByGenre(movies),
                 modifier = modifier,
                 navController = navController
             )
+        }
+         if (!isOnline && movies.isEmpty()) {
+             NoConnectionScreen(onRetry = { movieViewModel.loadSelectedCategory() })
         }
     }
 }

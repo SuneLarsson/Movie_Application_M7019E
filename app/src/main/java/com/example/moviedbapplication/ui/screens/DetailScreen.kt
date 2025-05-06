@@ -76,13 +76,16 @@ private lateinit var movieDao: MovieDao
 @Composable
 fun DetailScreen(
     navController: NavController,
-    movieViewModel: MovieViewModel) {
+    movieViewModel: MovieViewModel,
+    isOnline : Boolean) {
     val context = LocalContext.current
 
     val uiState = movieViewModel.uiState.collectAsState()
     val movieId = uiState.value.movieId
     movieViewModel.setMovieById(movieId)
-    val movie = movieViewModel.getMovieById(movieId) ?: return
+
+    val movie = movieViewModel.getMovie() ?: return
+
 
     val isFavorited = remember { mutableStateOf(false) }
 

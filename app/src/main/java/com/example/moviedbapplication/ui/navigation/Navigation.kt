@@ -1,28 +1,17 @@
 package com.example.moviedbapplication.ui.navigation
 
 
-import android.os.Bundle
-import androidx.compose.foundation.layout.Box
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.moviedbapplication.ui.screens.DetailScreen
 import com.example.moviedbapplication.ui.screens.MainScreen
@@ -40,7 +29,8 @@ enum class MovieScreen {
 @Composable
 fun MovieNavHost(
     navController: NavHostController,
-    movieViewModel: MovieViewModel
+    movieViewModel: MovieViewModel,
+    isOnline: Boolean
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -55,7 +45,7 @@ fun MovieNavHost(
         modifier = Modifier
     ) {
         composable(MovieScreen.Main.name) {
-            MainScreen(movieViewModel, navController)
+            MainScreen(movieViewModel, navController,isOnline)
         }
         composable(
             "${MovieScreen.Details.name}/{movieId}",
@@ -67,7 +57,8 @@ fun MovieNavHost(
             if (movieId != null) {
                 DetailScreen(
                     navController,
-                    movieViewModel = movieViewModel
+                    movieViewModel = movieViewModel,
+                    isOnline
                 )
             } else {
                 Box(
@@ -84,7 +75,7 @@ fun MovieNavHost(
             arguments = listOf(navArgument("movieId") { type = NavType.LongType })
         ) { backStackEntry ->
             val movieId = backStackEntry.arguments?.getLong("movieId") ?: return@composable
-            ThirdScreen(navController = navController, movieViewModel = movieViewModel, movieId = movieId)
+            ThirdScreen(navController = navController, movieViewModel = movieViewModel, movieId = movieId,isOnline = isOnline)
         }
     }
 

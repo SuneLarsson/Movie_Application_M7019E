@@ -3,7 +3,6 @@ package com.example.moviedbapplication.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
@@ -17,7 +16,6 @@ import com.example.moviedbapplication.network.ConnectivityObserver
 import com.example.moviedbapplication.network.MovieSyncWorker
 import com.example.moviedbapplication.ui.navigation.MovieNavHost
 import com.example.moviedbapplication.viewmodel.MovieViewModel
-import com.example.moviedbapplication.ui.screens.NoConnectionScreen
 
 
 @Composable
@@ -31,8 +29,6 @@ fun MovieApp() {
         loadSelectedCategory()
     } }
 
-
-    val uiState by movieViewModel.uiState.collectAsState()
 
     val connectivityObserver = remember { ConnectivityObserver(context) }
 
@@ -48,20 +44,12 @@ fun MovieApp() {
                         .build()
                 ).build()
             WorkManager.getInstance(context).enqueue(workRequest)
-            movieViewModel.getCachedMovies()
+            movieViewModel.loadSelectedCategory()
         }
     }
 
     val navController = rememberNavController()
-    if (uiState.showNoConnection) {
-        NoConnectionScreen(
-            onRetry = {
-                movieViewModel.loadSelectedCategory() // retry logic
-            }
-        )
-    } else {
-        MovieNavHost(navController = navController, movieViewModel = movieViewModel)
-    }
+    MovieNavHost(navController = navController, movieViewModel = movieViewModel, isOnline = isOnline)
 
 
 }
