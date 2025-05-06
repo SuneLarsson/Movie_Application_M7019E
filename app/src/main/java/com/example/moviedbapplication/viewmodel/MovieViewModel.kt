@@ -64,7 +64,7 @@ class MovieViewModel (
                             movieType = "favorites"
                         )
                     }
-//                setCategory(movieType)
+                setCategory("favorites")
                 }
             }
         }
@@ -234,7 +234,9 @@ class MovieViewModel (
                 userPreferencesRepository.saveSelectedList(category)
             }
         }
+
     }
+
 
     fun loadSelectedCategory() {
         Log.d("MovieViewModel", "Loading selected category")
@@ -244,7 +246,6 @@ class MovieViewModel (
                 .collect { saved ->
                     if (saved != lastFetchedMovieType) {
                         getMovies(movieType = saved)
-                        setCategory(saved)
                     }
                 }
         }
@@ -269,6 +270,8 @@ class MovieViewModel (
         }
     }
 
+
+
     fun setCachedMovies(movies: List<Movie>) {
         Log.d("MovieViewModel", "Setting cached movies: $movies")
         viewModelScope.launch {
@@ -289,12 +292,12 @@ class MovieViewModel (
             favoriteMoviesJob = null
         }
 
-        if (lastFetchedMovieType == movieType) {
-            Log.d("MovieViewModel", "Already fetched $movieType")
-            return
-        }
+//        if (lastFetchedMovieType == movieType) {
+//            Log.d("MovieViewModel", "Already fetched $movieType")
+//            return
+//        }
 
-        if (_uiState.value.movieType == movieType ) {
+        if (lastFetchedMovieType == movieType) {
             Log.d("MovieViewModel", "Get Cache: $movieType")
             getCachedMovies()
             return
@@ -342,6 +345,7 @@ class MovieViewModel (
                                 movies = emptyList(),
                                 movieType = movieType
 
+
                             )
                         }
                         setCategory(movieType)
@@ -352,6 +356,7 @@ class MovieViewModel (
                         currentState.copy(
                             movies = emptyList(),
                             movieType = movieType
+
                         )
                     }
                     setCategory(movieType)

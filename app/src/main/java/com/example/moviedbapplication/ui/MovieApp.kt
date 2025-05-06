@@ -31,16 +31,7 @@ fun MovieApp() {
         loadSelectedCategory()
     } }
 
-//    movieViewModel.loadSelectedCategory()
-//
-//    val uiState by movieViewModel.uiState.collectAsState()
-//
-//    LaunchedEffect(uiState.movies.isEmpty()) {
-//        if (uiState.movies.isEmpty() && uiState.selectedCategory == null) {
-//            movieViewModel.getMovies(movieType = "popular")
-//            movieViewModel.setCategory("popular")
-//        }
-//    }
+
     val uiState by movieViewModel.uiState.collectAsState()
 
     val connectivityObserver = remember { ConnectivityObserver(context) }
@@ -57,6 +48,7 @@ fun MovieApp() {
                         .build()
                 ).build()
             WorkManager.getInstance(context).enqueue(workRequest)
+            movieViewModel.getCachedMovies()
         }
     }
 
@@ -71,6 +63,5 @@ fun MovieApp() {
         MovieNavHost(navController = navController, movieViewModel = movieViewModel)
     }
 
-//    MovieNavHost(navController = navController, movieViewModel = movieViewModel)
 
 }
