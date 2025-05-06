@@ -11,6 +11,7 @@ class UserPreferencesRepository(private val context: Context) {
 
     companion object {
         private val SELECTED_LIST_KEY = stringPreferencesKey("selected_list")
+
     }
 
     // Read selected list as Flow

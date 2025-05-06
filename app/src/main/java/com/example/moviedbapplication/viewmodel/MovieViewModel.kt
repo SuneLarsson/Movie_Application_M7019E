@@ -12,6 +12,7 @@ import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.models.Video
 import com.example.moviedbapplication.ui.state.MovieUiState
 import com.example.moviedbapplication.utils.SECRETS
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,18 +37,23 @@ class MovieViewModel (
 //    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
 //    val reviews: StateFlow<List<Review>> = _reviews
 
-    fun getFavoriteMovies(movieType: String) {
-        viewModelScope.launch {
+    private var favoriteMoviesJob: Job? = null
+    fun getFavoriteMovies() {
+        favoriteMoviesJob?.cancel()
+        favoriteMoviesJob = viewModelScope.launch {
             movieDao.getAllFavoritesMovies().collect { entityList ->
-                val movieList = entityList.map { it.toMovie() }
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        movies = movieList,
-                        latestMovies = movieList,
-                        movieType = movieType
-                    )
+
+                if (_uiState.value.selectedCategory == "favorites") {
+                    val movieList = entityList.map { it.toMovie() }
+                    _uiState.update {
+                        it.copy(
+                            movies = movieList,
+                            latestMovies = movieList,
+                            movieType = "favorites"
+                        )
+                    }
+//                setCategory(movieType)
                 }
-                setCategory(movieType)
             }
         }
     }
@@ -206,9 +212,10 @@ class MovieViewModel (
 
     fun loadSelectedCategory() {
         viewModelScope.launch {
-            userPreferencesRepository.selectedListFlow.collect { saved ->
-                getMovies(movieType = saved)
-                setCategory(saved)
+            userPreferencesRepository.selectedListFlow.collect { savedCategory ->
+                setCategory(savedCategory)
+                getMovies(movieType = savedCategory)
+
             }
         }
     }
@@ -220,67 +227,35 @@ class MovieViewModel (
 
     fun getMovies(apiKey: String = SECRETS.API_KEY, movieType: String ) {
 
-        if (_uiState.value.movieType == movieType) {
-            _uiState.update {
-                it.copy(movies = _uiState.value.latestMovies)
-            }
+        if (movieType != "favorites") {
+            favoriteMoviesJob?.cancel()
+            favoriteMoviesJob = null
+        }
+
+        // 1) If it’s the exact same category, just re-use cached `latestMovies`
+        if (_uiState.value.movieType == movieType && movieType != "favorites") {
+            _uiState.update { it.copy(movies = it.latestMovies) }
             return
         }
-            else if(movieType == "favorites"){
-                getFavoriteMovies(movieType)
-                return
-            }
-         else {
-            viewModelScope.launch {
-                try {
-                    Log.d("MovieViewModel", "API call started with movieType: $movieType")
 
-                    val response = RetrofitInstance.api.getMovies(
-                        movieType = movieType,
-                        authHeader = "Bearer ${SECRETS.API_KEY}"
+        // 2) If they picked “favorites”, go to Room—but only here
+        if (movieType == "favorites") {
+            setCategory("favorites")
+            getFavoriteMovies()
+            return
+        }
 
-                    )
-
-
-                    if (response.isSuccessful) {
-
-                        Log.d(
-                            "MovieViewModel",
-                            "API call successful. Number of movies: ${response.body()?.results?.size}"
-                        )
-
-                        val movies = response.body()?.results ?: emptyList<Movie>()
-
-
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                movies = movies,
-                                latestMovies = movies,
-                                movieType = movieType
-                            )
-                        }
-                        setCategory(movieType)
-                    } else {
-
-                        Log.e(
-                            "MovieViewModel",
-                            "API call failed with status code: ${response.code()}"
-                        )
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                movies = emptyList()
-
-                            )
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("MovieViewModel", "Error occurred during API call", e)
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movies = emptyList()
-                        )
-                    }
+        // 3) Otherwise fetch from API
+        viewModelScope.launch {
+            val resp = RetrofitInstance.api.getMovies(movieType, "Bearer $apiKey")
+            if (resp.isSuccessful) {
+                val results = resp.body()?.results ?: emptyList()
+                _uiState.update {
+                    it.copy(movies = results, latestMovies = results, movieType = movieType)
                 }
+                setCategory(movieType)
+            } else {
+                _uiState.update { it.copy(movies = emptyList()) }
             }
         }
     }

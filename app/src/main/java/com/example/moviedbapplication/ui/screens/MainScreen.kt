@@ -247,7 +247,10 @@ fun CategoryDropdownMenu(
             DropdownMenuItem(
                 text = { Text("Popular") },
                 onClick = {
-                    fetchMovies(movieViewModel = movieViewModel, movieType = "popular")
+                    movieViewModel.setCategory("popular")
+                    movieViewModel.getMovies(movieType = "popular")
+
+//                    fetchMovies(movieViewModel = movieViewModel, movieType = "popular")
                     onDismissRequest()
                 }
             )
@@ -257,7 +260,9 @@ fun CategoryDropdownMenu(
             DropdownMenuItem(
                 text = { Text("Top Rated") },
                 onClick = {
-                    fetchMovies(movieViewModel = movieViewModel, movieType = "top_rated")
+                    movieViewModel.setCategory("top_rated")
+                    movieViewModel.getMovies(movieType = "top_rated")
+//                    fetchMovies(movieViewModel = movieViewModel, movieType = "top_rated")
                     onDismissRequest()
                 }
             )
@@ -268,7 +273,9 @@ fun CategoryDropdownMenu(
             DropdownMenuItem(
                 text = { Text("Favorites") },
                 onClick = {
-                    fetchFavoriteMovies(movieViewModel = movieViewModel, movieType = "favorites")
+                    movieViewModel.setCategory("favorites")
+                    movieViewModel.getMovies(movieType = "favorites")
+//                    fetchFavoriteMovies(movieViewModel = movieViewModel, movieType = "favorites")
                     onDismissRequest()
                 }
             )
@@ -425,10 +432,10 @@ fun MovieGridCard(movie: Movie, modifier: Modifier = Modifier, navController: Na
     }
 }
 
-fun fetchMovies(movieType: String, movieViewModel: MovieViewModel) {
-    movieViewModel.getMovies(movieType = movieType)
-}
-
-fun fetchFavoriteMovies(movieType: String, movieViewModel: MovieViewModel) {
-    movieViewModel.getFavoriteMovies(movieType = movieType)
-}
+//fun fetchMovies(movieType: String, movieViewModel: MovieViewModel) {
+//    movieViewModel.getMovies(movieType = movieType)
+//}
+//
+//fun fetchFavoriteMovies(movieType: String, movieViewModel: MovieViewModel) {
+//    movieViewModel.getFavoriteMovies(movieType = movieType)
+//}

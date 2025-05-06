@@ -22,15 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.moviedbapplication.models.Review
-import com.example.moviedbapplication.models.ReviewResponse
 import com.example.moviedbapplication.viewmodel.MovieViewModel
-import com.example.moviedbapplication.ui.navigation.MovieScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
