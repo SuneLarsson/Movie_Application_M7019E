@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.moviedbapplication.api.RetrofitInstance
 import com.example.moviedbapplication.database.MovieDatabase
+import com.example.moviedbapplication.database.GenreMap
 import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.utils.SECRETS
@@ -39,7 +40,7 @@ class MovieSyncWorker(
                 dao.clearMovies()
 
                 // 4. Insert the new list
-                val entities = movies.mapIndexed{ index, movie -> movie.toCachedMovieEntity(index) }
+                val entities = movies.mapIndexed{ index, movie -> GenreMap().mapMovieGenreIdsToGenre(movie).toCachedMovieEntity(index) }
                 dao.insertAll(entities)
 
                 Log.d("MovieSyncWorker", "Synced ${entities.size} movies to Room")

@@ -1,5 +1,6 @@
 package com.example.moviedbapplication.models
 
+import android.util.Log
 import com.example.moviedbapplication.database.CachedMovieEntity
 import com.example.moviedbapplication.database.FavoriteMovieEntity
 import com.google.gson.annotations.SerializedName
@@ -37,6 +38,10 @@ data class Movie(
 
 ) {
     fun toMovieEntity(): FavoriteMovieEntity {
+        Log.d("Movie", "Converting Movie to MovieEntity: $this")
+        val genreIds = this.genreIds?.takeIf { it.isNotEmpty() }
+            ?: this.genres?.map { it.id } ?: emptyList()
+
         return FavoriteMovieEntity(
             id = this.id,
             title = this.title,
@@ -44,13 +49,16 @@ data class Movie(
             backdropPath = this.backdropPath,
             releaseDate = this.releaseDate,
             overview = this.overview,
-            genreIds = this.genreIds,
+            genreIds = genreIds,
             homepage = this.homepage,
             imdbId = this.imdbId,
             genres = this.genres
         )
     }
     fun toCachedMovieEntity(position: Int): CachedMovieEntity {
+        val genreIds = this.genreIds?.takeIf { it.isNotEmpty() }
+            ?: this.genres?.map { it.id } ?: emptyList()
+
         return CachedMovieEntity(
             id = this.id,
             title = this.title,
@@ -58,8 +66,11 @@ data class Movie(
             backdropPath = this.backdropPath,
             releaseDate = this.releaseDate,
             overview = this.overview,
-            genreIds = this.genreIds,
-            position = position
+            genreIds = genreIds,
+            position = position,
+            homepage = this.homepage,
+            imdbId = this.imdbId,
+            genres = this.genres
         )
     }
 }

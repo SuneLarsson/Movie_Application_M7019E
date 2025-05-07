@@ -2,6 +2,7 @@ package com.example.moviedbapplication.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.moviedbapplication.models.Genre
 
 @Entity(tableName = "cached_movies")
 data class CachedMovieEntity(
@@ -13,5 +14,9 @@ data class CachedMovieEntity(
     val overview: String?,
 
     val genreIds: List<Int>? = emptyList(),
-    val position: Int
+    val position: Int,
+    val homepage: String?,
+    val imdbId: String?,
+    val genres: List<Genre>? = emptyList()
+
 )

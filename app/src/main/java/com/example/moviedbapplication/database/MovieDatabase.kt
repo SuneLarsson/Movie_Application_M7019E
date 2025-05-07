@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(entities = [FavoriteMovieEntity::class,
-                     CachedMovieEntity::class], version = 4, exportSchema = false)
+                     CachedMovieEntity::class], version = 6, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MovieDatabase : RoomDatabase() {
 

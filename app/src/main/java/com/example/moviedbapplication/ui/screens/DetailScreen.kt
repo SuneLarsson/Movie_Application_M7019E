@@ -3,6 +3,7 @@ package com.example.moviedbapplication.ui.screens
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.MovieDatabase
+import com.example.moviedbapplication.database.GenreMap
 import com.example.moviedbapplication.models.Genre
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.ui.navigation.MovieScreen
@@ -103,6 +105,7 @@ fun DetailScreen(
                     if(navController.previousBackStackEntry != null) {
                         IconButton(
                             onClick = { navController.navigateUp() },
+
                         ){
                             Icon(Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
@@ -182,7 +185,11 @@ fun saveToFavorite(context: Context, movie: Movie) {
         if (existingMovie != null) {
             movieDao.delete(existingMovie)
         } else {
+            Log.d("MovieViewModel", "Saving movie to favorites: $movie")
+            val mappedMovie = GenreMap().mapMovieGenreIdsToGenre(movie)
+            Log.d("MovieViewModel", "Map movie to favorites: $mappedMovie")
             val movieEntity = movie.toMovieEntity()
+            Log.d("MovieViewModel", "Movie entity: $movieEntity")
             movieDao.insert(movieEntity)
         }
     }

@@ -7,7 +7,7 @@ import com.example.moviedbapplication.api.RetrofitInstance
 import com.example.moviedbapplication.database.CachedMovieEntity
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.FavoriteMovieEntity
-import com.example.moviedbapplication.database.Movies
+import com.example.moviedbapplication.database.GenreMap
 import com.example.moviedbapplication.database.UserPreferencesRepository
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.models.Video
@@ -61,39 +61,6 @@ class MovieViewModel (
         }
     }
 
-//    fun handleOfflineNoCache() {
-//        viewModelScope.launch {
-//            val cached = movieDao.getAllFavoritesMovies().first()
-//            if (cached.isEmpty()) {
-//                _uiState.update { it.copy(showNoConnection = true) }
-//            }
-//        }
-//    }
-//
-//    fun addFavoriteMovie(movie: Movie) {
-//        viewModelScope.launch {
-//            movieDao.insert(movie.toEntity())
-//        }
-//    }
-//
-//    fun removeFavoriteMovie(movie: Movie) {
-//        viewModelScope.launch {
-//            movieDao.delete(movie.toEntity())
-//        }
-//    }
-
-
-//    fun Movie.toEntity(): FavoriteMovieEntity = FavoriteMovieEntity(
-//        id = id,
-//        title = title,
-//        posterPath = posterPath,
-//        backdropPath = backdropPath,
-//        releaseDate = releaseDate,
-//        overview = overview,
-//        genreIds = genreIds ?: emptyList(),
-//        homepage = homepage,
-//        imdbId = imdbId
-//    )
 
     fun FavoriteMovieEntity.toMovie(): Movie = Movie(
         id = id,
@@ -104,7 +71,8 @@ class MovieViewModel (
         overview = overview,
         genreIds = genreIds,
         homepage = homepage,
-        imdbId = imdbId
+        imdbId = imdbId,
+        genres = genres
     )
 
     fun CachedMovieEntity.toMovie(): Movie = Movie(
@@ -114,7 +82,10 @@ class MovieViewModel (
             backdropPath = backdropPath,
             releaseDate = releaseDate,
             overview = overview,
-            genreIds = genreIds
+            genreIds = genreIds,
+            homepage = homepage,
+            imdbId = imdbId,
+            genres = genres
     )
 
 
@@ -147,6 +118,11 @@ class MovieViewModel (
                 }
             } catch (e: Exception) {
                 Log.e("MovieViewModel", "Error occurred during API call", e)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        videos = emptyList()
+                    )
+                }
             }
         }
     }
@@ -266,9 +242,6 @@ class MovieViewModel (
         }
     }
 
-//    fun getCategory() : String? {
-//        return _uiState.value.selectedCategory
-//    }
 
 
     fun getCachedMovies(movieType: String) {
@@ -291,7 +264,7 @@ class MovieViewModel (
     fun setCachedMovies(movies: List<Movie>) {
         Log.d("MovieViewModel", "Setting cached movies: $movies")
         viewModelScope.launch {
-            val entities = movies.mapIndexed{ index, movie -> movie.toCachedMovieEntity(index) }
+            val entities = movies.mapIndexed{ index, movie -> GenreMap().mapMovieGenreIdsToGenre(movie).toCachedMovieEntity(index) }
             movieDao.clearMovies()
             movieDao.insertAll(entities)
         }
@@ -422,7 +395,7 @@ class MovieViewModel (
 
 
     fun getMoviesByGenre(genre: String) {
-        val genreMap = Movies().getGenreMap()
+        val genreMap = GenreMap().getGenreMap()
         _uiState.update { currentState ->
             // Filter the movies from the current state using the genre
             val filteredMovies = currentState.movies.filter { movie ->
@@ -444,11 +417,7 @@ class MovieViewModel (
         }
     }
 
-//    fun resetMovie() {
-//        _uiState.update { currentState ->
-//            currentState.copy(movie = null, loading = false)
-//        }
-//    }
+
 
 
 

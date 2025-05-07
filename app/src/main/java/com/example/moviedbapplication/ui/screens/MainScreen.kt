@@ -39,7 +39,7 @@ import coil.compose.AsyncImage
 import com.example.moviedbapplication.database.MovieDao
 import com.example.moviedbapplication.database.MovieDatabase
 import com.example.moviedbapplication.ui.navigation.MovieScreen
-import com.example.moviedbapplication.database.Movies
+import com.example.moviedbapplication.database.GenreMap
 import com.example.moviedbapplication.models.Movie
 import com.example.moviedbapplication.viewmodel.MovieViewModel
 import com.example.moviedbapplication.utils.Constants
@@ -84,7 +84,7 @@ fun MovieDBApp(
     var genreMenuExpanded by remember { mutableStateOf(false) }
     var categoryMenuExpanded by remember { mutableStateOf(false) }
 
-    val fullGenreMap = Movies().getGenreMap()
+    val fullGenreMap = GenreMap().getGenreMap()
     val usedGenreIds = movies.flatMap { it.genreIds!! }.toSet()
     val genreMap = fullGenreMap.filterKeys { it in usedGenreIds }
 
@@ -115,7 +115,7 @@ fun MovieDBApp(
                 )
         } else {
             MovieGrid(
-                sectionedMovies = Movies().createSectionedMoviesByGenre(movies),
+                sectionedMovies = GenreMap().createSectionedMoviesByGenre(movies),
                 modifier = modifier,
                 navController = navController
             )

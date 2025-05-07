@@ -16,8 +16,8 @@ data class FavoriteMovieEntity(
 
     val genreIds: List<Int>? = emptyList(),
 
-    val homepage: String? = null,
-    val imdbId: String? = null,
+    val homepage: String?,
+    val imdbId: String?,
 
     val genres: List<Genre>? = emptyList()
 
