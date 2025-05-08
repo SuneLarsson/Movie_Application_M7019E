@@ -61,6 +61,8 @@ fun MovieApp() {
                 ).build()
             WorkManager.getInstance(context).enqueue(workRequest)
             movieViewModel.loadSelectedCategory()
+            val movidID = movieViewModel.getMovieId()
+            movieViewModel.setVideos(movidID)
         }
     }
 

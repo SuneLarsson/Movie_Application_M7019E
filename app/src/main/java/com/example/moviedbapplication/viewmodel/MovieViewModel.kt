@@ -130,7 +130,6 @@ class MovieViewModel (
     fun setMovieById(movieId: Long) {
         if (_uiState.value.movie?.id == movieId) return
 
-
         viewModelScope.launch {
             try {
                 _uiState.update { currentState ->
@@ -204,6 +203,11 @@ class MovieViewModel (
     fun getMovie() : Movie?{
         return _uiState.value.movie
     }
+
+    fun getMovieId() : Long{
+        return _uiState.value.movieId
+    }
+
 
     fun setMovieId(movieId: Long) {
         _uiState.update { currentState ->

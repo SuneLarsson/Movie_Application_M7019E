@@ -17,7 +17,7 @@ class UserPreferencesRepository(private val context: Context) {
     // Read selected list as Flow
     val selectedListFlow: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[SELECTED_LIST_KEY] ?: "Top Rated"
+            preferences[SELECTED_LIST_KEY] ?: "popular"
         }
 
     // Save selected list
